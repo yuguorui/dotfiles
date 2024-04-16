@@ -1,0 +1,43 @@
+[http]
+        proxyAuthMethod = basic
+[alias]
+        st = status
+        logl = log --pretty=oneline --abbrev-commit
+        bl = blame
+[diff]
+	algorithm = histogram
+
+[branch]
+	sort = committerdate
+
+[merge]
+	conflictStyle = diff3
+
+[commit]
+	verbose = true
+
+[rerere]
+	enabled = true
+
+{{- if eq .chezmoi.username "ruogui.ygr" }}
+[user]
+        name = ruogui.ygr
+        email = ruogui.ygr@alibaba-inc.com
+
+[sendemail]
+        smtpserver = /mnt/data/userdata/ruogui.ygr/.local/bin/msmtp
+        smtpencryption = tls
+        smtpuser = GuoRui.Yu@linux.alibaba.com
+        smtpserverport = 465
+        suppresscc = all
+        signedoffbycc = false
+        suppressfrom = true
+
+[safe]
+        directory = /mnt/data/userdata/ruogui.ygr/Code/
+{{- else }}
+[user]
+	email = yuguorui@pku.edu.cn
+	name = yuguorui
+{{- end }}
+
