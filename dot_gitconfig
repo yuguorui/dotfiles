@@ -1,0 +1,17 @@
+[diff]
+	algorithm = histogram
+
+[branch]
+	sort = committerdate
+
+[merge]
+	conflictStyle = diff3
+
+[commit]
+	verbose = true
+
+[rerere]
+	enabled = true
+[user]
+	email = yuguorui@pku.edu.cn
+	name = yuguorui
