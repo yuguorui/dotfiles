@@ -24,4 +24,4 @@ if [ -z $(command -v chezmoi) ]; then
     sh -c "$(curl -fsLS get.chezmoi.io/lb)"
 fi
 export PATH=$HOME/.local/bin:$PATH
-chezmoi init git@github.com:$USER/dotfiles.git
+chezmoi init https://github.com/yuguorui/dotfiles.git
