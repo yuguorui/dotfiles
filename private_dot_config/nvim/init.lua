@@ -345,18 +345,6 @@ require("lazy").setup({
         }
     },
     {
-        "yuguorui/hlchunk.nvim",
-        branch = "dev",
-        event = { "UIEnter" },
-        opts = {
-            blank = {
-                enable = true,
-                tab_chars = { "-" }
-            }
-        },
-        config = true,
-    },
-    {
         'renerocksai/telekasten.nvim',
         dependencies = {'nvim-telescope/telescope.nvim'},
         config = function()
@@ -366,26 +354,21 @@ require("lazy").setup({
         end
     },
     {
-        'johnfrankmorgan/whitespace.nvim',
-        event = { "BufReadPost", "BufNewFile" },
-        opts = {
-            -- configuration options and their defaults
+        "lukas-reineke/indent-blankline.nvim",
+        main = "ibl",
+        config = function()
+            vim.opt.list = true
+            vim.api.nvim_command([[
+              set listchars=tab:\|\ ,trail:·
+            ]])
 
-            -- `highlight` configures which highlight is used to display
-            -- trailing whitespace
-            highlight = 'DiffDelete',
+            require('ibl').setup({
+                whitespace = {
+                    remove_blankline_trail = true,
+                },
+            })
 
-            -- `ignored_filetypes` configures which filetypes to ignore when
-            -- displaying trailing whitespace
-            ignored_filetypes = { 'TelescopePrompt', 'Trouble', 'help' },
-
-            -- `ignore_terminal` configures whether to ignore terminal buffers
-            ignore_terminal = true,
-
-            -- `return_cursor` configures if cursor should return to previous
-            -- position after trimming whitespace
-            return_cursor = true,
-        },
+        end,
     },
 })
 
