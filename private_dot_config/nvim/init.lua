@@ -374,7 +374,7 @@ require("lazy").setup({
         config = function()
             vim.opt.list = true
             vim.api.nvim_command([[
-              set listchars=tab:\|\ ,trail:·
+              set listchars=tab:⤏\ ,trail:·
             ]])
 
             require('ibl').setup({
