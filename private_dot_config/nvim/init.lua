@@ -73,7 +73,8 @@ require("lazy").setup({
         event = "VeryLazy",
         opts = function(_, opts)
             sections = {
-                lualine_x = { 'copilot' ,'encoding', 'fileformat', 'filetype' },
+                -- lualine_x = { 'copilot' ,'encoding', 'fileformat', 'filetype' },
+                lualine_x = { 'encoding', 'fileformat', 'filetype' },
                 lualine_z = { 'location', 'tabs' }
             }
             opts.sections = sections
@@ -310,25 +311,39 @@ require("lazy").setup({
         opts = {},
         config = function(_, opts) require'lsp_signature'.setup(opts) end
     },
-    { 'AndreM222/copilot-lualine' },
     {
-        'zbirenbaum/copilot.lua',
-        cmd = { "Copilot" },
-        event = "InsertEnter",
-        opts = {
-            suggestion = {
-                auto_trigger = true,
-                keymap = {
-                    accept = "<C-k>",
-                    accept_word = false,
-                    accept_line = false,
-                    next = "<M-]>",
-                    prev = "<M-[>",
-                    dismiss = "<C-]>",
-                },
-            },
-        },
+        'github/copilot.vim',
+        lazy = false,
+        config = function()
+            local keyset = vim.keymap.set
+            keyset('i', '<C-k>', 'copilot#Accept("\\<CR>")', {
+                expr = true,
+                noremap = true,
+                desc = "Accept copilot suggestion",
+                replace_keycodes = false
+            })
+            vim.g.copilot_no_tab_map = true
+        end,
     },
+    -- { 'AndreM222/copilot-lualine' },
+    -- {
+    --     'zbirenbaum/copilot.lua',
+    --     cmd = { "Copilot" },
+    --     event = "InsertEnter",
+    --     opts = {
+    --         suggestion = {
+    --             auto_trigger = true,
+    --             keymap = {
+    --                 accept = "<C-k>",
+    --                 accept_word = false,
+    --                 accept_line = false,
+    --                 next = "<M-]>",
+    --                 prev = "<M-[>",
+    --                 dismiss = "<C-]>",
+    --             },
+    --         },
+    --     },
+    -- },
     {
         "mhinz/vim-startify",
     },
