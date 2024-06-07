@@ -346,10 +346,12 @@ require("lazy").setup({
     },
     {
         "yuguorui/hlchunk.nvim",
+        branch = "dev",
         event = { "UIEnter" },
         opts = {
             blank = {
-                enable = false,
+                enable = true,
+                tab_chars = { "-" }
             }
         },
         config = true,
@@ -465,10 +467,6 @@ inoremap <silent><c-j> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
 
 " git blame
 nnoremap ,b :<C-u>call gitblame#echo()<CR>
-
-" show tab
-set listchars=tab:\ \ ┊,extends:…,precedes:…
-set list
 
 ]])
 
