@@ -417,7 +417,7 @@ nnoremap <silent>    <A-8> <Cmd>b 8<CR>
 nnoremap <silent>    <A-9> <Cmd>b 9<CR>
 nnoremap <silent>    <A-`> <Cmd>b#<CR>
 
-nnoremap <silent>    <A-c> <Cmd>bdelete<CR>
+nnoremap <silent>    <A-c> <Cmd>bp\|bd #<CR>
 
 " undo dir
 if !isdirectory("/tmp/nvim_bak")
