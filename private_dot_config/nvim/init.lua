@@ -57,7 +57,7 @@ require("lazy").setup({
     },
     {'nvim-tree/nvim-web-devicons', lazy = true},
     "folke/neodev.nvim",
-    { "folke/tokyonight.nvim", lazy = false, priority = 1000, config = function() vim.cmd[[colorscheme tokyonight]] end },
+    { "UtkarshVerma/molokai.nvim", lazy = false, priority = 1000, config = function() vim.cmd[[colorscheme molokai]] end },
     -- { "rebelot/kanagawa.nvim", lazy = false, priority = 1000, config = function() vim.cmd[[ colorscheme kanagawa]] end },
     {
         "dstein64/vim-startuptime",
