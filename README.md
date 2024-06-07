@@ -18,3 +18,10 @@ if [ -z $(command -v nvim) ]; then
     sudo mv nvim.appimage /usr/local/bin/nvim
     sudo ln -s /usr/local/bin/nvim /usr/local/bin/vim
 fi
+
+# install chezmoi
+if [ -z $(command -v chezmoi) ]; then
+    sh -c "$(curl -fsLS get.chezmoi.io/lb)"
+fi
+export PATH=$HOME/.local/bin:$PATH
+chezmoi init git@github.com:$USER/dotfiles.git
