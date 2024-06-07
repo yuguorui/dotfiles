@@ -76,7 +76,9 @@ require("lazy").setup({
             sections = {
                 lualine_z = {'location', 'tabs'}
             }
-            opts.sections = sections
+            opts.options = {
+                sections = sections,
+            }
         end,
     },
 
