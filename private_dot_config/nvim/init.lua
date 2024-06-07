@@ -451,6 +451,12 @@ inoremap <silent><c-j> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
 " git blame
 nnoremap ,b :<C-u>call gitblame#echo()<CR>
 
+if has('unix')
+    set dictionary+=/usr/share/dict/words
+else
+    set dictionary+=~/AppData/Local/nvim/words
+endif
+
 ]])
 
 -- mini.map
