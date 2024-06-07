@@ -331,11 +331,9 @@ require("lazy").setup({
         }
     },
     {
-        "shellRaining/hlchunk.nvim",
+        "yuguorui/hlchunk.nvim",
         event = { "UIEnter" },
-        config = function()
-            require("hlchunk").setup({})
-        end
+        config = true,
     },
     {
         'renerocksai/telekasten.nvim',
