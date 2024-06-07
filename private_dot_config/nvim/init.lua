@@ -70,16 +70,15 @@ require("lazy").setup({
     },
     {
       "nvim-lualine/lualine.nvim",
-      -- optional = true,
         event = "VeryLazy",
         opts = function(_, opts)
             sections = {
-                lualine_z = {'location', 'tabs'}
+                lualine_x = { 'copilot' ,'encoding', 'fileformat', 'filetype' },
+                lualine_z = { 'location', 'tabs' }
             }
-            opts.options = {
-                sections = sections,
-            }
+            opts.sections = sections
         end,
+        dependencies = { "AndreM222/copilot-lualine" },
     },
 
     -- telescope
@@ -311,9 +310,24 @@ require("lazy").setup({
         opts = {},
         config = function(_, opts) require'lsp_signature'.setup(opts) end
     },
+    { 'AndreM222/copilot-lualine' },
     {
-        'github/copilot.vim',
-        lazy = false
+        'zbirenbaum/copilot.lua',
+        cmd = { "Copilot" },
+        event = "InsertEnter",
+        opts = {
+            suggestion = {
+                auto_trigger = true,
+                keymap = {
+                    accept = "<C-k>",
+                    accept_word = false,
+                    accept_line = false,
+                    next = "<M-]>",
+                    prev = "<M-[>",
+                    dismiss = "<C-]>",
+                },
+            },
+        },
     },
     {
         "mhinz/vim-startify",
@@ -644,13 +658,7 @@ keyset("n", "<space>j", ":<C-u>CocNext<cr>", opts)
 -- Do default action for previous item
 keyset("n", "<space>k", ":<C-u>CocPrev<cr>", opts)
 
-keyset('i', '<C-k>', 'copilot#Accept("\\<CR>")', {
-    expr = true,
-    noremap = true,
-    desc = "Accept copilot suggestion",
-    replace_keycodes = false
-})
-vim.g.copilot_no_tab_map = true
+-- change default coc snippet key bindings
 vim.g.coc_snippet_next = '<TAB>'
 vim.g.coc_snippet_prev = '<S-TAB>'
 
