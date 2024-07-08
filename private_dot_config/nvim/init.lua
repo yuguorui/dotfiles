@@ -238,9 +238,9 @@ require("lazy").setup({
                 max_lines = 10,
                 trim_scope = 'inner',
         },
-	dependencies = {
-		"nvim-treesitter/nvim-treesitter",
-	},
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+        },
     },
 
     {
