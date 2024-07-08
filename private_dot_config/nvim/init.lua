@@ -167,6 +167,7 @@ require("lazy").setup({
             require("bufferline").setup{
                 options = {
                     always_show_bufferline = false,
+                    close_command = "Bdelete! %d"
                 },
             }
         end
@@ -385,6 +386,9 @@ require("lazy").setup({
 
         end,
     },
+    {
+        'famiu/bufdelete.nvim',
+    },
 })
 
 vim.cmd([[
@@ -432,7 +436,7 @@ nnoremap <silent>    <A-8> <Cmd>b 8<CR>
 nnoremap <silent>    <A-9> <Cmd>b 9<CR>
 nnoremap <silent>    <A-`> <Cmd>b#<CR>
 
-nnoremap <silent>    <A-c> <Cmd>bp\|bd #<CR>
+nnoremap <silent>    <A-c> <Cmd>Bdelete<CR>
 
 " undo dir
 if !isdirectory("/tmp/nvim_bak")
