@@ -400,6 +400,11 @@ require("lazy").setup({
                 desc = " rip substitute",
             },
         },
+        opts = {
+            regexOptions = {
+                pcre2 = false,
+            },
+        },
     },
 })
 
