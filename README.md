@@ -21,7 +21,11 @@ fi
 
 # install chezmoi
 if [ -z $(command -v chezmoi) ]; then
-    sh -c "$(curl -fsLS get.chezmoi.io/lb)"
+    mkdir -p $HOME/.local/bin
+    release=2.60.1
+    curl -LO https://github.com/twpayne/chezmoi/releases/download/v${release}/chezmoi_${release}_linux-musl_amd64.tar.gz
+    tar -C $HOME/.local/bin -xf chezmoi_${release}_linux-musl_amd64.tar.gz chezmoi
+    rm -f chezmoi_${release}_linux-musl_amd64.tar.gz
 fi
 export PATH=$HOME/.local/bin:$PATH
 chezmoi init https://github.com/yuguorui/dotfiles.git
