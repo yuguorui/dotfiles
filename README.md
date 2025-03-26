@@ -3,12 +3,12 @@
 ## Install
 ```shell
 # install nodejs
-if [ -z $(command -v node) ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-
-    nvm install --lts
+NODE_VER=v22.14.0
+if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
+    NODE_RELEASE=node-${NODE_VER}-linux-x64-glibc-217
+    curl https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
+    mkdir -p ~/.local/opt && tar -xvf ${NODE_RELEASE}.tar.gz -C ~/.local/opt && rm -rf ${NODE_RELEASE}.tar.gz
+    export PATH=$HOME/.local/opt/${NODE_RELEASE}/bin:$PATH
 fi
 
 # install nvim it self
