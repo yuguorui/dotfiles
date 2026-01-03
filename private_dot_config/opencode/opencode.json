@@ -5,6 +5,53 @@
     "oh-my-opencode"
   ],
   "provider": {
+    "bailian": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "apiKey": "{env:DASHSCOPE_API_KEY}"
+      },
+      "models": {
+        "glm-4.7": {
+          "name": "GLM-4.7",
+          "limit": { "context": 202752, "output": 16384 },
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "cost": {
+            "input": 0.000004,
+            "output": 0.000016
+          },
+          "options": {
+            "enable_thinking": true
+          }
+        },
+        "kimi-k2-thinking": {
+          "name": "Kimi K2 Thinking",
+          "limit": { "context": 262144, "output": 16384 },
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "cost": {
+            "input": 0.000004,
+            "output": 0.000016
+          },
+          "options": {
+            "enable_thinking": true
+          }
+        },
+        "qwen-coder-plus": {
+          "name": "Qwen Coder Plus",
+          "limit": { "context": 1000000, "output": 65536 },
+          "cost": {
+            "input": 0.000006,
+            "output": 0.000024
+          },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "qwen-coder-flash": {
+          "name": "Qwen Coder Flash",
+          "limit": { "context": 1000000, "output": 65536 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        }
+      }
+    },
     "google": {
       "models": {
         "antigravity-gemini-3-pro-low": {
