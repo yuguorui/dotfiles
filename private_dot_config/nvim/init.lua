@@ -459,6 +459,7 @@ require("lazy").setup({
     {
         "f-person/auto-dark-mode.nvim",
         priority = 1000,
+        cond = vim.fn.has("mac") == 1,
         config = function()
             local auto_dark_mode = require('auto-dark-mode')
 
