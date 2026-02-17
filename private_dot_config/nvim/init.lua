@@ -234,7 +234,7 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        version = false, -- last release is way too old and doesn't work on Windows
+        branch = 'master',
         build = ":TSUpdate",
         event = { "BufReadPost", "BufNewFile" },
         cmd = { "TSUpdateSync" },
