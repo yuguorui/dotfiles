@@ -6,7 +6,7 @@
 NODE_VER=v22.14.0
 if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
     NODE_RELEASE=node-${NODE_VER}-linux-x64-glibc-217
-    curl https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
+    curl -L https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
     mkdir -p ~/.local/opt && tar -xvf ${NODE_RELEASE}.tar.gz -C ~/.local/opt && rm -rf ${NODE_RELEASE}.tar.gz
     export PATH=$HOME/.local/opt/${NODE_RELEASE}/bin:$PATH
 fi
