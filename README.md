@@ -19,6 +19,24 @@ if [ -z $(command -v nvim) ]; then
     sudo ln -s /usr/local/bin/nvim /usr/local/bin/vim
 fi
 
+# install bun
+curl -fsSL https://bun.com/install | bash
+
+# install opencode from fork
+if [ -z $(command -v opencode) ]; then
+    export PATH=$HOME/.bun/bin:$PATH
+    git clone https://github.com/yuguorui/opencode.git
+    cd opencode
+    bun install
+    ./packages/opencode/script/build.ts --single
+    # map x86_64 to x64 to be compatible with the original releases
+    arch=$(uname -m)
+    if [ "$arch" = "x86_64" ]; then
+        arch="x64"
+    fi
+    cp -a packages/opencode/dist/opencode-$(uname -s|tr '[:upper:]' '[:lower:]')-${arch}/bin/opencode $HOME/.local/bin
+fi
+
 # install chezmoi
 if [ -z $(command -v chezmoi) ]; then
     mkdir -p $HOME/.local/bin
@@ -29,3 +47,4 @@ if [ -z $(command -v chezmoi) ]; then
 fi
 export PATH=$HOME/.local/bin:$PATH
 chezmoi init https://github.com/yuguorui/dotfiles.git
+
