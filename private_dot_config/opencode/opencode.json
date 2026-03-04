@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
   "plugin": [
     "opencode-antigravity-auth@1.6.0",
     // "oh-my-opencode",
