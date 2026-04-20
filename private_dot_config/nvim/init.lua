@@ -1,4 +1,5 @@
 vim.g.mapleader = " " -- Make sure to set `mapleader` before lazy so your mappings are correct
+vim.o.background = "light"
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -57,7 +58,37 @@ require("lazy").setup({
     },
     {'nvim-tree/nvim-web-devicons', lazy = true},
     "folke/neodev.nvim",
-    { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false, priority = 1000, config = function() vim.cmd[[ colorscheme github_light]] end },
+    { 'projekt0n/github-nvim-theme', name = 'github-theme', lazy = false, priority = 1000, config = function()
+        vim.cmd[[ colorscheme github_light]]
+        if vim.fn.has("mac") ~= 1 then
+            vim.api.nvim_create_autocmd("OptionSet", {
+                pattern = "background",
+                callback = function()
+                    if vim.o.background ~= "light" then
+                        vim.o.background = "light"
+                    end
+                end,
+            })
+        end
+    end },
+    {
+        "f-person/auto-dark-mode.nvim",
+        priority = 1000,
+        cond = vim.fn.has("mac") == 1,
+        config = function()
+            require('auto-dark-mode').setup({
+                update_interval = 1000,
+                set_dark_mode = function()
+                    vim.api.nvim_set_option_value("background", "dark", {})
+                    vim.cmd("colorscheme github_dark")
+                end,
+                set_light_mode = function()
+                    vim.api.nvim_set_option_value("background", "light", {})
+                    vim.cmd("colorscheme github_light")
+                end,
+            })
+        end,
+    },
     -- { "UtkarshVerma/molokai.nvim", lazy = false, priority = 1000, config = function() vim.cmd[[colorscheme molokai]] end },
     -- { "rebelot/kanagawa.nvim", lazy = false, priority = 1000, config = function() vim.cmd[[ colorscheme kanagawa]] end },
     {
@@ -234,51 +265,48 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        branch = 'master',
+        branch = 'main',
+        lazy = false,
         build = ":TSUpdate",
-        event = { "BufReadPost", "BufNewFile" },
-        cmd = { "TSUpdateSync" },
-        keys = {
-            { "<CR>", desc = "Increment selection", mode = "x" },
-            { "<bs>", desc = "Decrement selection", mode = "x" },
-        },
-        ---@type TSConfig
-        opts = {
-            highlight = {
-                enable = true,
-                disable = { "lua", },
-            },
-            indent = { enable = true },
-            ensure_installed = {
-                "c",
-                "cpp",
-                "python",
-                "rust"
-            },
-            incremental_selection = {
-                enable = true,
-                keymaps = {
-                    init_selection = '<CR>',
-                    scope_incremental = '<CR>',
-                    node_incremental = '<TAB>',
-                    node_decremental = '<bs>',
-                },
-            },
-        },
-        ---@param opts TSConfig
-        config = function(_, opts)
-            if type(opts.ensure_installed) == "table" then
-                ---@type table<string, boolean>
-                local added = {}
-                opts.ensure_installed = vim.tbl_filter(function(lang)
-                    if added[lang] then
-                        return false
+        config = function()
+            if vim.fn.executable("tree-sitter") == 0 then
+                local uname = vim.uv.os_uname()
+                local os_name = ({ Linux = "linux", Darwin = "macos", Windows_NT = "windows" })[uname.sysname]
+                local arch = ({ x86_64 = "x64", aarch64 = "arm64", arm64 = "arm64", arm = "arm" })[uname.machine]
+                if os_name and arch then
+                    local ver = "v0.26.8"
+                    local zip = ("tree-sitter-cli-%s-%s.zip"):format(os_name, arch)
+                    local url = ("https://github.com/tree-sitter/tree-sitter/releases/download/%s/%s"):format(ver, zip)
+                    local dest = vim.fn.expand("~/.local/bin")
+                    vim.fn.mkdir(dest, "p")
+                    local tmp = vim.fn.tempname() .. ".zip"
+                    vim.notify("tree-sitter-cli: downloading " .. zip .. " ...")
+                    vim.fn.system({ "curl", "-sL", "-o", tmp, url })
+                    if vim.v.shell_error == 0 then
+                        vim.fn.system({ "unzip", "-oq", tmp, "-d", dest })
+                        vim.fn.system({ "chmod", "+x", dest .. "/tree-sitter" })
+                        os.remove(tmp)
+                        if not vim.env.PATH:find(dest, 1, true) then
+                            vim.env.PATH = dest .. ":" .. vim.env.PATH
+                        end
+                        vim.notify("tree-sitter-cli: installed to " .. dest)
+                    else
+                        vim.notify("tree-sitter-cli: download failed", vim.log.levels.WARN)
                     end
-                    added[lang] = true
-                    return true
-                    end, opts.ensure_installed)
+                end
             end
-            require("nvim-treesitter.configs").setup(opts)
+
+            local ts = require("nvim-treesitter")
+            ts.setup {}
+
+            vim.api.nvim_create_autocmd("FileType", {
+                callback = function(ev)
+                    if ev.match ~= "lua" then
+                        pcall(vim.treesitter.start)
+                    end
+                    vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end,
+            })
         end,
     },
     {
@@ -455,26 +483,19 @@ require("lazy").setup({
             },
         },
     },
-    -- Auto theme detection
+    -- search/replace
     {
-        "f-person/auto-dark-mode.nvim",
-        priority = 1000,
-        cond = vim.fn.has("mac") == 1,
+        'MagicDuck/grug-far.nvim',
+        -- Note (lazy loading): grug-far.lua defers all it's requires so it's lazy by default
+        -- additional lazy config to defer loading is not really needed...
         config = function()
-            local auto_dark_mode = require('auto-dark-mode')
-
-            auto_dark_mode.setup({
-                update_interval = 1000,
-                set_dark_mode = function()
-                    vim.api.nvim_set_option_value("background", "dark", {})
-                    vim.cmd("colorscheme github_dark")
-                end,
-                set_light_mode = function()
-                    vim.api.nvim_set_option_value("background", "light", {})
-                    vim.cmd("colorscheme github_light")
-                end,
-            })
-        end,
+            -- optional setup call to override plugin options
+            -- alternatively you can set options with vim.g.grug_far = { ... }
+            require('grug-far').setup({
+                -- options, see Configuration section below
+                -- there are no required options atm
+            });
+        end
     },
 })
 
