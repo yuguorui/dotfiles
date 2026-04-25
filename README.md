@@ -2,10 +2,19 @@
 
 ## Install
 ```shell
+# detect arch
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)     NODE_ARCH=x64; NVIM_ARCH=x86_64; CHEZMOI_ARCH=linux-musl_amd64 ;;
+    aarch64)    NODE_ARCH=arm64; NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
+    arm64)      NODE_ARCH=arm64; NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
+    *)          echo "Unsupported arch: $ARCH"; exit 1 ;;
+esac
+
 # install nodejs
 NODE_VER=v22.14.0
 if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
-    NODE_RELEASE=node-${NODE_VER}-linux-x64-glibc-217
+    NODE_RELEASE=node-${NODE_VER}-linux-${NODE_ARCH}-glibc-217
     curl -L https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
     mkdir -p ~/.local/opt && tar -xvf ${NODE_RELEASE}.tar.gz -C ~/.local/opt && rm -rf ${NODE_RELEASE}.tar.gz
     export PATH=$HOME/.local/opt/${NODE_RELEASE}/bin:$PATH
@@ -13,10 +22,10 @@ fi
 
 # install nvim it self
 if [ -z $(command -v nvim) ]; then
-    curl -LO https://github.com/neovim/neovim-releases/releases/download/v0.12.2/nvim-linux-x86_64.appimage
-    chmod u+x nvim-linux-x86_64.appimage
-    sudo mv nvim-linux-x86_64.appimage /usr/local/bin/nvim
-    sudo ln -s /usr/local/bin/nvim /usr/local/bin/vim
+    curl -LO https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-${NVIM_ARCH}.tar.gz
+    mkdir -p ~/.local/opt && tar -xzf nvim-linux-${NVIM_ARCH}.tar.gz -C ~/.local/opt && rm -f nvim-linux-${NVIM_ARCH}.tar.gz
+    sudo ln -sf $HOME/.local/opt/nvim-linux-${NVIM_ARCH}/bin/nvim /usr/local/bin/nvim
+    sudo ln -sf /usr/local/bin/nvim /usr/local/bin/vim
 fi
 
 # install bun
@@ -41,9 +50,9 @@ fi
 if [ -z $(command -v chezmoi) ]; then
     mkdir -p $HOME/.local/bin
     release=2.60.1
-    curl -LO https://github.com/twpayne/chezmoi/releases/download/v${release}/chezmoi_${release}_linux-musl_amd64.tar.gz
-    tar -C $HOME/.local/bin -xf chezmoi_${release}_linux-musl_amd64.tar.gz chezmoi
-    rm -f chezmoi_${release}_linux-musl_amd64.tar.gz
+    curl -LO https://github.com/twpayne/chezmoi/releases/download/v${release}/chezmoi_${release}_${CHEZMOI_ARCH}.tar.gz
+    tar -C $HOME/.local/bin -xf chezmoi_${release}_${CHEZMOI_ARCH}.tar.gz chezmoi
+    rm -f chezmoi_${release}_${CHEZMOI_ARCH}.tar.gz
 fi
 export PATH=$HOME/.local/bin:$PATH
 chezmoi init https://github.com/yuguorui/dotfiles.git
