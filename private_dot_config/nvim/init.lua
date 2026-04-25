@@ -301,9 +301,6 @@ require("lazy").setup({
 
             vim.api.nvim_create_autocmd("FileType", {
                 callback = function(ev)
-                    if ev.match ~= "lua" then
-                        pcall(vim.treesitter.start)
-                    end
                     vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
                 end,
             })
