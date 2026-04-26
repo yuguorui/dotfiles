@@ -5,18 +5,27 @@
 # detect arch
 ARCH=$(uname -m)
 case "$ARCH" in
-    x86_64)     NODE_ARCH=x64; NVIM_ARCH=x86_64; CHEZMOI_ARCH=linux-musl_amd64 ;;
-    aarch64)    NODE_ARCH=arm64; NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
-    arm64)      NODE_ARCH=arm64; NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
+    x86_64)     NVIM_ARCH=x86_64; CHEZMOI_ARCH=linux-musl_amd64 ;;
+    aarch64)    NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
+    arm64)      NVIM_ARCH=arm64; CHEZMOI_ARCH=linux_arm64 ;;
     *)          echo "Unsupported arch: $ARCH"; exit 1 ;;
 esac
 
 # install nodejs
 NODE_VER=v22.14.0
 if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
-    NODE_RELEASE=node-${NODE_VER}-linux-${NODE_ARCH}-glibc-217
-    curl -L https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
-    mkdir -p ~/.local/opt && tar -xvf ${NODE_RELEASE}.tar.gz -C ~/.local/opt && rm -rf ${NODE_RELEASE}.tar.gz
+    case "$ARCH" in
+        x86_64)
+            NODE_RELEASE=node-${NODE_VER}-linux-x64-glibc-217
+            curl -L https://unofficial-builds.nodejs.org/download/release/${NODE_VER}/${NODE_RELEASE}.tar.gz -o ${NODE_RELEASE}.tar.gz
+            mkdir -p ~/.local/opt && tar -xzf ${NODE_RELEASE}.tar.gz -C ~/.local/opt && rm -f ${NODE_RELEASE}.tar.gz
+            ;;
+        aarch64|arm64)
+            NODE_RELEASE=node-${NODE_VER}-linux-arm64
+            curl -fsSL https://nodejs.org/dist/${NODE_VER}/${NODE_RELEASE}.tar.xz -o ${NODE_RELEASE}.tar.xz
+            mkdir -p ~/.local/opt && tar -xJf ${NODE_RELEASE}.tar.xz -C ~/.local/opt && rm -f ${NODE_RELEASE}.tar.xz
+            ;;
+    esac
     export PATH=$HOME/.local/opt/${NODE_RELEASE}/bin:$PATH
 fi
 
