@@ -5,7 +5,15 @@
 NODE_VER=v22.14.0
 NVIM_VER=0.12.2
 
-apt-get update && apt-get install -y curl sudo unzip git
+if command -v apt-get >/dev/null 2>&1; then
+    apt-get update && apt-get install -y curl sudo unzip git
+elif command -v yum >/dev/null 2>&1; then
+    yum install -y curl sudo unzip git
+elif command -v dnf >/dev/null 2>&1; then
+    dnf install -y curl sudo unzip git
+elif command -v apk >/dev/null 2>&1; then
+    apk add --no-cache curl sudo unzip git bash
+fi
 
 # detect arch
 ARCH=$(uname -m)
