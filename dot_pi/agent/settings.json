@@ -1,0 +1,15 @@
+{
+  "lastChangelogVersion": "0.73.0",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:@aliou/pi-processes",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-btw",
+    "npm:pi-smart-fetch",
+    "npm:@tintinweb/pi-subagents",
+    "npm:pi-claude-bridge"
+  ]
+}
