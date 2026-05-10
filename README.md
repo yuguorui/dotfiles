@@ -25,7 +25,7 @@ case "$ARCH" in
 esac
 
 # install nodejs
-if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
+if [ -z "$(command -v node)" ] || ! node -v | grep -q "${NODE_VER}"; then
     case "$ARCH" in
         x86_64)
             NODE_RELEASE=node-${NODE_VER}-linux-x64-glibc-217
@@ -42,7 +42,7 @@ if [ -z $(command -v node) ] || ! (node -v |grep ${NODE_VER}); then
 fi
 
 # install nvim it self
-if [ -z $(command -v nvim) ]; then
+if [ -z "$(command -v nvim)" ]; then
     curl -LO https://github.com/neovim/neovim/releases/download/v${NVIM_VER}/nvim-linux-${NVIM_ARCH}.tar.gz
     mkdir -p ~/.local/opt && tar -xzf nvim-linux-${NVIM_ARCH}.tar.gz -C ~/.local/opt && rm -f nvim-linux-${NVIM_ARCH}.tar.gz
     sudo ln -sf $HOME/.local/opt/nvim-linux-${NVIM_ARCH}/bin/nvim /usr/local/bin/nvim
@@ -50,9 +50,9 @@ if [ -z $(command -v nvim) ]; then
 fi
 
 # install opencode from fork
-if [ -z $(command -v opencode) ]; then
-    if [ -n $(command -v python3) ]; then
-        if [ -z $(command -v bun) ]; then
+if [ -z "$(command -v opencode)" ]; then
+    if [ -n "$(command -v python3)" ]; then
+        if [ -z "$(command -v bun)" ]; then
             curl -fsSL https://bun.com/install | bash
             export PATH=$HOME/.bun/bin:$PATH
         fi
@@ -74,7 +74,7 @@ if [ -z $(command -v opencode) ]; then
 fi
 
 # install chezmoi
-if [ -z $(command -v chezmoi) ]; then
+if [ -z "$(command -v chezmoi)" ]; then
     mkdir -p $HOME/.local/bin
     release=2.60.1
     curl -LO https://github.com/twpayne/chezmoi/releases/download/v${release}/chezmoi_${release}_${CHEZMOI_ARCH}.tar.gz
@@ -82,5 +82,5 @@ if [ -z $(command -v chezmoi) ]; then
     rm -f chezmoi_${release}_${CHEZMOI_ARCH}.tar.gz
 fi
 export PATH=$HOME/.local/bin:$PATH
-chezmoi init https://github.com/yuguorui/dotfiles.git
+chezmoi init --apply https://github.com/yuguorui/dotfiles.git
 
