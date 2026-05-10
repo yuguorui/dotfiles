@@ -1,8 +1,10 @@
 {
   "lastChangelogVersion": "999.999.999",
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
+  "extensions": [
+    "extensions/00-async-tools.ts"
+  ],
   "packages": [
     "npm:@aliou/pi-processes",
     "npm:@juicesharp/rpiv-todo",
