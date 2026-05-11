@@ -1,12 +1,29 @@
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type {
+  AgentToolResult,
+  ExtensionAPI,
+  ExtensionContext,
+  Theme,
+  ToolRenderResultOptions,
+} from "@mariozechner/pi-coding-agent";
 import { Type } from "typebox";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  type Component,
+  matchesKey,
+  Text,
+  truncateToWidth,
+  visibleWidth,
+} from "@mariozechner/pi-tui";
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, statSync, writeFileSync } from "node:fs";
 import { chmod, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const EXT_ID = "tmux-agents";
+const STATUS_WIDGET_ID = `${EXT_ID}:status`;
+const LOG_DOCK_WIDGET_ID = `${EXT_ID}:dock`;
 const MAX_PREVIEW_CHARS = 12_000;
+const MAX_CACHED_ASSISTANT_CHARS = 64_000;
 const MAX_WIDGET_AGENTS = 6;
+const DEFAULT_DOCK_HEIGHT = 12;
 const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 type AgentStatus = "running" | "completed" | "failed" | "stopped" | "unknown";
@@ -62,7 +79,15 @@ interface RefreshedRecord {
   parsed: ParsedEvents;
 }
 
+interface EventParseCache {
+  offset: number;
+  partialLine: string;
+  parsed: ParsedEvents;
+  activeTools: Map<string, string>;
+}
+
 let records = new Map<string, AgentRecord>();
+const eventParseCache = new Map<string, EventParseCache>();
 let nextId = 1;
 let currentCtx: ExtensionContext | undefined;
 let widgetTimer: ReturnType<typeof setInterval> | undefined;
@@ -164,8 +189,8 @@ function extractMessageText(message: any): string {
   }).join("");
 }
 
-function parseEventsFile(path: string): ParsedEvents {
-  const parsed: ParsedEvents = {
+function emptyParsedEvents(): ParsedEvents {
+  return {
     agentStarted: false,
     agentEnded: false,
     assistantText: "",
@@ -175,60 +200,112 @@ function parseEventsFile(path: string): ParsedEvents {
     activeTools: [],
     parseErrors: 0,
   };
+}
 
-  if (!existsSync(path)) return parsed;
-  let text = "";
-  try { text = readFileSync(path, "utf-8"); } catch { return parsed; }
+function capAssistantText(parsed: ParsedEvents): void {
+  if (parsed.assistantText.length > MAX_CACHED_ASSISTANT_CHARS) {
+    parsed.assistantText = parsed.assistantText.slice(-MAX_CACHED_ASSISTANT_CHARS);
+  }
+}
 
-  const active = new Map<string, string>();
-  let deltaText = "";
-  let finalAssistantText = "";
+function applyEventToParsed(event: any, parsed: ParsedEvents, active: Map<string, string>): void {
+  parsed.lastEventType = event.type;
 
-  for (const line of text.split(/\r?\n/)) {
-    if (!line.trim()) continue;
-    let event: any;
-    try { event = JSON.parse(line); } catch { parsed.parseErrors++; continue; }
-    parsed.lastEventType = event.type;
-
-    switch (event.type) {
-      case "agent_start":
-        parsed.agentStarted = true;
-        break;
-      case "agent_end":
-        parsed.agentEnded = true;
-        break;
-      case "message_update": {
-        const ame = event.assistantMessageEvent;
-        if (ame?.type === "text_delta" && typeof ame.delta === "string") deltaText += ame.delta;
-        break;
+  switch (event.type) {
+    case "agent_start":
+      parsed.agentStarted = true;
+      break;
+    case "agent_end":
+      parsed.agentEnded = true;
+      break;
+    case "message_update": {
+      const ame = event.assistantMessageEvent;
+      if (ame?.type === "text_delta" && typeof ame.delta === "string") {
+        parsed.assistantText += ame.delta;
+        capAssistantText(parsed);
       }
-      case "message_end": {
-        if (event.message?.role === "assistant") {
-          const t = extractMessageText(event.message);
-          if (t.trim()) finalAssistantText = t;
+      break;
+    }
+    case "message_end": {
+      if (event.message?.role === "assistant") {
+        const t = extractMessageText(event.message);
+        if (t.trim()) {
+          parsed.assistantText = t;
+          capAssistantText(parsed);
         }
-        break;
       }
-      case "tool_execution_start":
-        parsed.toolStarts++;
-        if (event.toolCallId && event.toolName) active.set(event.toolCallId, event.toolName);
-        parsed.lastTool = event.toolName;
-        break;
-      case "tool_execution_end":
-        parsed.toolEnds++;
-        if (event.isError) parsed.toolErrors++;
-        if (event.toolCallId) active.delete(event.toolCallId);
-        parsed.lastTool = event.toolName;
-        break;
+      break;
+    }
+    case "tool_execution_start":
+      parsed.toolStarts++;
+      if (event.toolCallId && event.toolName) active.set(event.toolCallId, event.toolName);
+      parsed.lastTool = event.toolName;
+      break;
+    case "tool_execution_end":
+      parsed.toolEnds++;
+      if (event.isError) parsed.toolErrors++;
+      if (event.toolCallId) active.delete(event.toolCallId);
+      parsed.lastTool = event.toolName;
+      break;
+  }
+}
+
+function parseEventsFile(path: string): ParsedEvents {
+  let cache = eventParseCache.get(path);
+  if (!cache) {
+    cache = { offset: 0, partialLine: "", parsed: emptyParsedEvents(), activeTools: new Map() };
+    eventParseCache.set(path, cache);
+  }
+
+  let size = 0;
+  try { size = statSync(path).size; } catch { return cache.parsed; }
+
+  if (size < cache.offset) {
+    cache.offset = 0;
+    cache.partialLine = "";
+    cache.parsed = emptyParsedEvents();
+    cache.activeTools.clear();
+  }
+
+  if (size === cache.offset) {
+    cache.parsed.activeTools = [...cache.activeTools.values()];
+    return cache.parsed;
+  }
+
+  const bytesToRead = size - cache.offset;
+  const buffer = Buffer.allocUnsafe(bytesToRead);
+  let fd: number | undefined;
+  try {
+    fd = openSync(path, "r");
+    const bytesRead = readSync(fd, buffer, 0, bytesToRead, cache.offset);
+    cache.offset += bytesRead;
+    const chunk = buffer.subarray(0, bytesRead).toString("utf-8");
+    const combined = cache.partialLine + chunk;
+    const lines = combined.split("\n");
+    cache.partialLine = combined.endsWith("\n") ? "" : (lines.pop() ?? "");
+
+    for (const rawLine of lines) {
+      const line = rawLine.endsWith("\r") ? rawLine.slice(0, -1) : rawLine;
+      if (!line.trim()) continue;
+      try {
+        applyEventToParsed(JSON.parse(line), cache.parsed, cache.activeTools);
+      } catch {
+        cache.parsed.parseErrors++;
+      }
+    }
+  } catch {
+    // Keep the last good parsed snapshot if the file is temporarily unreadable.
+  } finally {
+    if (fd !== undefined) {
+      try { closeSync(fd); } catch { /* ignore */ }
     }
   }
 
-  parsed.activeTools = [...active.values()];
-  parsed.assistantText = finalAssistantText || deltaText;
-  return parsed;
+  cache.parsed.activeTools = [...cache.activeTools.values()];
+  return cache.parsed;
 }
 
-async function refreshRecord(pi: ExtensionAPI, record: AgentRecord, signal?: AbortSignal): Promise<RefreshedRecord> {
+async function refreshRecord(pi: ExtensionAPI, record: AgentRecord, signal?: AbortSignal, persist = true): Promise<RefreshedRecord> {
   const exitInfo = readJsonFile<ExitInfo>(record.exitFile);
   const parsed = parseEventsFile(record.eventsFile);
   const tmuxRunning = record.status !== "stopped" ? await hasTmuxSession(pi, record, signal).catch(() => false) : false;
@@ -260,16 +337,17 @@ async function refreshRecord(pi: ExtensionAPI, record: AgentRecord, signal?: Abo
     assistantText: parsed.assistantText,
   };
   try { writeFileSync(record.resultFile, JSON.stringify(result, null, 2), "utf-8"); } catch { /* ignore */ }
-  saveRegistry(record.cwd);
+  if (persist) saveRegistry(record.cwd);
   return { record, parsed };
 }
 
-async function refreshAll(pi: ExtensionAPI, cwd: string): Promise<RefreshedRecord[]> {
-  const out: RefreshedRecord[] = [];
-  for (const record of records.values()) {
-    if (record.cwd === cwd) out.push(await refreshRecord(pi, record).catch(() => ({ record, parsed: parseEventsFile(record.eventsFile) })));
-  }
-  return out;
+async function refreshAll(pi: ExtensionAPI, cwd: string, signal?: AbortSignal): Promise<RefreshedRecord[]> {
+  const cwdRecords = [...records.values()].filter(record => record.cwd === cwd);
+  const refreshed = await Promise.all(
+    cwdRecords.map(record => refreshRecord(pi, record, signal, false).catch(() => ({ record, parsed: parseEventsFile(record.eventsFile) }))),
+  );
+  if (cwdRecords.length > 0) saveRegistry(cwd);
+  return refreshed;
 }
 
 function statusIcon(status: AgentStatus): string {
@@ -282,33 +360,160 @@ function statusIcon(status: AgentStatus): string {
   }
 }
 
+type DockVisibility = "hidden" | "collapsed" | "open";
+
+let dockVisibility: DockVisibility = "hidden";
+let dockFocusedAgentId: string | null = null;
+let dockComponent: TmuxAgentDockComponent | null = null;
+let dockTui: { requestRender(): void } | null = null;
+
+function isLive(status: AgentStatus): boolean {
+  return status === "running";
+}
+
+function statusLabel(status: AgentStatus, exitCode?: number): string {
+  switch (status) {
+    case "running": return "running";
+    case "completed": return "exit(0)";
+    case "failed": return `exit(${exitCode ?? "?"})`;
+    case "stopped": return "stopped";
+    default: return status;
+  }
+}
+
+function stripAnsi(text: string): string {
+  return text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, "");
+}
+
+function renderPanelRule(width: number, theme: Theme): string {
+  return theme.fg("dim", "─".repeat(Math.max(0, width)));
+}
+
+function renderPanelTitleLine(title: string, width: number, theme: Theme): string {
+  const titleText = ` ${title} `;
+  const borderLen = Math.max(0, width - visibleWidth(titleText));
+  const left = Math.floor(borderLen / 2);
+  const right = borderLen - left;
+  return theme.fg("dim", "─".repeat(left)) + theme.fg("accent", theme.bold(titleText)) + theme.fg("dim", "─".repeat(right));
+}
+
+function createPanelPadder(width: number): (content: string) => string {
+  const innerWidth = Math.max(0, width - 2);
+  return (content: string) => {
+    const line = visibleWidth(content) > innerWidth ? truncateToWidth(content, innerWidth) : content;
+    return ` ${line}${" ".repeat(Math.max(0, innerWidth - visibleWidth(line)))} `;
+  };
+}
+
+function snapshotRecords(cwd: string): RefreshedRecord[] {
+  return [...records.values()]
+    .filter(record => record.cwd === cwd)
+    .map(record => ({ record, parsed: parseEventsFile(record.eventsFile) }))
+    .sort((a, b) => {
+      const liveDiff = Number(isLive(b.record.status)) - Number(isLive(a.record.status));
+      if (liveDiff !== 0) return liveDiff;
+      return (b.record.completedAt ?? b.record.startedAt) - (a.record.completedAt ?? a.record.startedAt);
+    });
+}
+
+function readTail(path: string, maxLines: number): string[] {
+  try {
+    if (!existsSync(path)) return [];
+    return readFileSync(path, "utf-8").split(/\r?\n/).filter(Boolean).slice(-maxLines).map(stripAnsi);
+  } catch {
+    return [];
+  }
+}
+
+function outputPreviewLines(item: RefreshedRecord, maxLines: number): string[] {
+  const text = item.parsed.assistantText.trim();
+  if (text) return text.split(/\r?\n/).filter(Boolean).slice(-maxLines).map(stripAnsi);
+  if (item.parsed.activeTools.length) return [`active tools: ${item.parsed.activeTools.join(", ")}`];
+  const stderr = readTail(item.record.stderrFile, maxLines);
+  if (stderr.length) return stderr;
+  if (item.record.status === "running") return ["(no assistant output yet)"];
+  return ["(no output)"];
+}
+
+function renderStatusWidget(refreshed: RefreshedRecord[], theme: Theme, maxWidth: number): string[] {
+  if (refreshed.length === 0) return [];
+  const ordered = [...refreshed].sort((a, b) => {
+    const liveDiff = Number(isLive(b.record.status)) - Number(isLive(a.record.status));
+    if (liveDiff !== 0) return liveDiff;
+    return (b.record.completedAt ?? b.record.startedAt) - (a.record.completedAt ?? a.record.startedAt);
+  });
+
+  const prefix = theme.fg("dim", "tmux agents: ");
+  const separator = theme.fg("dim", " | ");
+  const parts: string[] = [];
+  let currentLen = visibleWidth(prefix);
+
+  for (const [index, item] of ordered.entries()) {
+    const { record, parsed } = item;
+    const name = record.description.length > 20 ? `${record.description.slice(0, 17)}...` : record.description;
+    const tone = record.status === "running" ? "accent" : record.status === "completed" ? "dim" : record.status === "failed" ? "error" : "warning";
+    const tool = record.status === "running" && parsed.activeTools.length ? `:${parsed.activeTools[0]}` : "";
+    const formatted = `${theme.fg(tone as any, name)} ${theme.fg("dim", statusLabel(record.status, record.exitCode) + tool)}`;
+    const remaining = ordered.length - index - 1;
+    const suffix = remaining > 0 ? separator + theme.fg("dim", `+${remaining} more`) : "";
+    const needed = (parts.length ? visibleWidth(separator) : 0) + visibleWidth(formatted) + visibleWidth(suffix);
+    if (currentLen + needed > maxWidth && parts.length > 0) {
+      parts.push(theme.fg("dim", `+${ordered.length - index} more`));
+      break;
+    }
+    parts.push(formatted);
+    currentLen += (parts.length > 1 ? visibleWidth(separator) : 0) + visibleWidth(formatted);
+    if (parts.length >= MAX_WIDGET_AGENTS) {
+      const hidden = ordered.length - parts.length;
+      if (hidden > 0) parts.push(theme.fg("dim", `+${hidden} more`));
+      break;
+    }
+  }
+
+  const line = prefix + parts.join(separator);
+  return [visibleWidth(line) > maxWidth ? truncateToWidth(line, maxWidth) : line];
+}
+
 async function updateWidget(pi: ExtensionAPI): Promise<void> {
   const ctx = currentCtx;
   if (!ctx?.hasUI) return;
   const refreshed = await refreshAll(pi, ctx.cwd).catch(() => []);
-  for (const item of refreshed) await maybeNotify(pi, item);
-  const running = refreshed.filter(item => item.record.status === "running");
-  const visible = running
-    .sort((a, b) => b.record.startedAt - a.record.startedAt)
-    .slice(0, MAX_WIDGET_AGENTS);
+  let notificationDirty = false;
+  for (const item of refreshed) notificationDirty = (await maybeNotify(pi, item)) || notificationDirty;
+  if (notificationDirty) saveRegistry(ctx.cwd);
 
-  if (visible.length === 0) {
-    ctx.ui.setWidget(EXT_ID, undefined);
+  const maxWidth = process.stdout.columns || 120;
+  const statusLines = renderStatusWidget(refreshed, ctx.ui.theme, maxWidth);
+  ctx.ui.setWidget(STATUS_WIDGET_ID, statusLines.length ? statusLines : undefined, { placement: "belowEditor" });
+
+  const running = refreshed.filter(item => item.record.status === "running");
+  if (dockVisibility === "collapsed" && running.length === 0) dockVisibility = "hidden";
+
+  if (dockVisibility === "hidden") {
+    ctx.ui.setWidget(LOG_DOCK_WIDGET_ID, undefined);
+    dockComponent?.dispose();
+    dockComponent = null;
+    dockTui = null;
     return;
   }
 
-  const lines = ["● Tmux Agents"];
-  for (const { record, parsed } of visible) {
-    const age = formatDuration((record.completedAt ?? now()) - record.startedAt);
-    const tools = record.status === "running" && parsed.activeTools.length
-      ? ` · ${parsed.activeTools.slice(0, 2).join(",")}`
-      : parsed.toolEnds > 0
-        ? ` · ${parsed.toolEnds} tools`
-        : "";
-    lines.push(`├─ ${statusIcon(record.status)} ${record.id}  ${record.status.padEnd(9)} ${record.description} · ${age}${tools}`);
+  const mode = dockVisibility;
+  const height = mode === "collapsed" ? 3 : DEFAULT_DOCK_HEIGHT;
+  if (dockComponent && dockTui) {
+    dockComponent.update({ mode, focusedAgentId: dockFocusedAgentId, height });
+    dockTui.requestRender();
+    return;
   }
-  if (running.length > visible.length) lines.push(`└─ ${running.length - visible.length} more running`);
-  ctx.ui.setWidget(EXT_ID, lines);
+
+  ctx.ui.setWidget(
+    LOG_DOCK_WIDGET_ID,
+    (tui: { requestRender(): void }, theme: Theme) => {
+      dockTui = tui;
+      dockComponent = new TmuxAgentDockComponent({ cwd: ctx.cwd, theme, tui, mode, focusedAgentId: dockFocusedAgentId, height });
+      return dockComponent;
+    },
+    { placement: "aboveEditor" },
+  );
 }
 
 function buildPrompt(id: string, prompt: string): string {
@@ -338,12 +543,11 @@ exit "$code"
 `;
 }
 
-async function maybeNotify(pi: ExtensionAPI, refreshed: RefreshedRecord): Promise<void> {
+async function maybeNotify(pi: ExtensionAPI, refreshed: RefreshedRecord): Promise<boolean> {
   const { record, parsed } = refreshed;
-  if (!record.notify || record.notified) return;
-  if (record.status !== "completed" && record.status !== "failed" && record.status !== "stopped") return;
+  if (!record.notify || record.notified) return false;
+  if (record.status !== "completed" && record.status !== "failed" && record.status !== "stopped") return false;
   record.notified = true;
-  saveRegistry(record.cwd);
   const summary = truncateMiddle(parsed.assistantText.trim() || "No assistant output.", 4000);
   pi.sendMessage({
     customType: "tmux-agent-notification",
@@ -351,6 +555,7 @@ async function maybeNotify(pi: ExtensionAPI, refreshed: RefreshedRecord): Promis
     display: true,
     details: { id: record.id, status: record.status, description: record.description },
   }, { deliverAs: "followUp", triggerTurn: true });
+  return true;
 }
 
 function tmuxListCommand(recordOrCwd: AgentRecord | string): string {
@@ -384,19 +589,325 @@ function describeRecord(record: AgentRecord, parsed: ParsedEvents): string {
   return parts.join("\n");
 }
 
+function formatAgentLine(item: RefreshedRecord, theme: Theme, selected = false, width = 120): string {
+  const { record, parsed } = item;
+  const duration = formatDuration((record.completedAt ?? now()) - record.startedAt);
+  const icon = statusIcon(record.status);
+  const tone = record.status === "running" ? "accent" : record.status === "completed" ? "success" : record.status === "failed" ? "error" : "warning";
+  const tool = record.status === "running" && parsed.activeTools.length ? ` · ${parsed.activeTools.slice(0, 2).join(",")}` : parsed.toolEnds ? ` · ${parsed.toolEnds} tools` : "";
+  const prefix = selected ? theme.fg("accent", "> ") : "  ";
+  const line = `${prefix}${theme.fg(tone as any, icon)} ${theme.fg("accent", record.description)} ${theme.fg("dim", `(${record.id})`)} ${theme.fg("dim", statusLabel(record.status, record.exitCode))} ${theme.fg("dim", duration)}${theme.fg("dim", tool)}`;
+  return visibleWidth(line) > width ? truncateToWidth(line, width) : line;
+}
+
+class TmuxAgentDockComponent implements Component {
+  private cwd: string;
+  private theme: Theme;
+  private tui: { requestRender(): void };
+  private mode: "collapsed" | "open";
+  private focusedAgentId: string | null;
+  private height: number;
+
+  constructor(opts: { cwd: string; theme: Theme; tui: { requestRender(): void }; mode: "collapsed" | "open"; focusedAgentId: string | null; height: number }) {
+    this.cwd = opts.cwd;
+    this.theme = opts.theme;
+    this.tui = opts.tui;
+    this.mode = opts.mode;
+    this.focusedAgentId = opts.focusedAgentId;
+    this.height = opts.height;
+  }
+
+  update(opts: { mode: "collapsed" | "open"; focusedAgentId: string | null; height: number }): void {
+    this.mode = opts.mode;
+    this.focusedAgentId = opts.focusedAgentId;
+    this.height = opts.height;
+    this.tui.requestRender();
+  }
+
+  handleInput(_data: string): boolean { return false; }
+  invalidate(): void { /* render is cheap and reads live files */ }
+  dispose(): void { /* no subscriptions */ }
+
+  render(width: number): string[] {
+    return this.mode === "collapsed" ? this.renderCollapsed(width) : this.renderOpen(width);
+  }
+
+  private renderCollapsed(width: number): string[] {
+    const theme = this.theme;
+    const pad = createPanelPadder(width);
+    const items = snapshotRecords(this.cwd);
+    const running = items.filter(item => item.record.status === "running");
+    const finished = items.filter(item => item.record.status !== "running");
+
+    const parts = running.slice(0, 4).map(item => `${theme.fg("accent", "●")} ${item.record.description}`);
+    if (running.length > 4) parts.push(theme.fg("dim", `+${running.length - 4} running`));
+    if (finished.length > 0) parts.push(theme.fg("dim", `+${finished.length} finished`));
+
+    const latest = (this.focusedAgentId ? items.find(i => i.record.id === this.focusedAgentId) : undefined) ?? running[0] ?? items[0];
+    const lastLine = latest ? outputPreviewLines(latest, 1)[0] ?? "" : "No tmux agents";
+
+    return [
+      renderPanelRule(width, theme),
+      pad(parts.length ? parts.join(theme.fg("dim", " | ")) : theme.fg("dim", "No tmux agents")),
+      pad(theme.fg("dim", truncateToWidth(lastLine, Math.max(0, width - 2)))),
+    ];
+  }
+
+  private renderOpen(width: number): string[] {
+    const theme = this.theme;
+    const pad = createPanelPadder(width);
+    const innerWidth = Math.max(0, width - 2);
+    const items = snapshotRecords(this.cwd);
+    const selected = (this.focusedAgentId ? items.find(i => i.record.id === this.focusedAgentId) : undefined) ?? items.find(i => i.record.status === "running") ?? items[0];
+    const lines: string[] = [renderPanelTitleLine("Tmux Agents", width, theme)];
+
+    if (!selected) {
+      lines.push(pad(theme.fg("dim", "No tmux agents")));
+      lines.push(pad(theme.fg("dim", "Use tmux_agent_spawn to start one")));
+      return lines.slice(0, this.height);
+    }
+
+    for (const item of items.slice(0, 4)) {
+      lines.push(pad(formatAgentLine(item, theme, item.record.id === selected.record.id, innerWidth)));
+    }
+    if (items.length > 4) lines.push(pad(theme.fg("dim", `+${items.length - 4} more — open /ta for the full panel`)));
+
+    lines.push(renderPanelRule(width, theme));
+    lines.push(pad(`${theme.fg("accent", selected.record.description)} ${theme.fg("dim", `(${selected.record.id})`)} ${theme.fg("dim", statusLabel(selected.record.status, selected.record.exitCode))}`));
+
+    const remaining = Math.max(1, this.height - lines.length - 2);
+    for (const line of outputPreviewLines(selected, remaining)) lines.push(pad(line));
+    while (lines.length < this.height - 1) lines.push(pad(""));
+    lines.push(pad(`${theme.fg("dim", "/ta")} panel  ${theme.fg("dim", "/ta:dock toggle")} dock  ${theme.fg("dim", "tmux attach available in result")}`));
+    return lines.slice(0, this.height);
+  }
+}
+
+class TmuxAgentsPanelComponent implements Component {
+  private selectedIndex = 0;
+  private logScrollOffset = 0;
+
+  constructor(
+    private opts: {
+      cwd: string;
+      theme: Theme;
+      tui: { requestRender(): void };
+      onClose(): void;
+      onFocus(id: string): void;
+      onStop(id: string): Promise<void>;
+      onClearFinished(): void;
+    },
+  ) {}
+
+  handleInput(data: string): boolean {
+    const items = snapshotRecords(this.opts.cwd);
+    if ((matchesKey(data, "down") || data === "j") && items.length) {
+      this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
+      this.logScrollOffset = 0;
+      this.opts.tui.requestRender();
+      return true;
+    }
+    if ((matchesKey(data, "up") || data === "k") && items.length) {
+      this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+      this.logScrollOffset = 0;
+      this.opts.tui.requestRender();
+      return true;
+    }
+    if (data === "J") { this.logScrollOffset = Math.max(0, this.logScrollOffset - 5); this.opts.tui.requestRender(); return true; }
+    if (data === "K") { this.logScrollOffset += 5; this.opts.tui.requestRender(); return true; }
+    if (matchesKey(data, "return") && items[this.selectedIndex]) {
+      this.opts.onFocus(items[this.selectedIndex]!.record.id);
+      this.opts.onClose();
+      return true;
+    }
+    if (data === "x" && items[this.selectedIndex]) {
+      void this.opts.onStop(items[this.selectedIndex]!.record.id).finally(() => this.opts.tui.requestRender());
+      return true;
+    }
+    if (data === "c" || data === "C") {
+      this.opts.onClearFinished();
+      this.selectedIndex = Math.max(0, Math.min(this.selectedIndex, snapshotRecords(this.opts.cwd).length - 1));
+      this.opts.tui.requestRender();
+      return true;
+    }
+    if (matchesKey(data, "escape") || data === "q" || data === "Q") {
+      this.opts.onClose();
+      return true;
+    }
+    return true;
+  }
+
+  invalidate(): void { /* stateless render */ }
+
+  render(width: number): string[] {
+    const theme = this.opts.theme;
+    const pad = createPanelPadder(width);
+    const innerWidth = Math.max(0, width - 2);
+    const lines: string[] = [renderPanelTitleLine("Tmux Subagents", width, theme)];
+    const items = snapshotRecords(this.opts.cwd);
+
+    if (items.length === 0) {
+      lines.push(pad(""));
+      lines.push(pad(theme.fg("dim", "No tmux agents for this session")));
+      lines.push(pad(theme.fg("dim", "Use tmux_agent_spawn to start background work")));
+      lines.push(pad(""));
+    } else {
+      this.selectedIndex = Math.max(0, Math.min(this.selectedIndex, items.length - 1));
+      lines.push(pad(theme.fg("dim", "Agent".padEnd(34)) + theme.fg("dim", "Status".padEnd(14)) + theme.fg("dim", "Time".padEnd(8)) + theme.fg("dim", "Tools")));
+      lines.push(renderPanelRule(width, theme));
+      const maxRows = Math.min(8, items.length);
+      for (let i = 0; i < maxRows; i++) {
+        const item = items[i]!;
+        const r = item.record;
+        const p = item.parsed;
+        const marker = i === this.selectedIndex ? theme.fg("accent", "> ") : "  ";
+        const agent = `${r.description} ${theme.fg("dim", `(${r.id})`)}`;
+        const status = statusLabel(r.status, r.exitCode);
+        const time = formatDuration((r.completedAt ?? now()) - r.startedAt);
+        const tools = r.status === "running" && p.activeTools.length ? p.activeTools.join(",") : `${p.toolEnds}/${p.toolStarts}`;
+        const row = marker + truncateToWidth(agent, 32).padEnd(Math.max(0, 32 + (agent.length - visibleWidth(agent)))) + status.padEnd(14) + time.padEnd(8) + tools;
+        lines.push(pad(row));
+      }
+      if (items.length > maxRows) lines.push(pad(theme.fg("dim", `+${items.length - maxRows} more`)));
+
+      const selected = items[this.selectedIndex]!;
+      lines.push(renderPanelRule(width, theme));
+      lines.push(pad(`${theme.fg("accent", "Output:")} ${selected.record.description} ${theme.fg("dim", `(${selected.record.id})`)}`));
+      const outputLines = outputPreviewLines(selected, 200);
+      const previewRows = Math.max(4, Math.min(12, outputLines.length));
+      const end = Math.max(0, outputLines.length - this.logScrollOffset);
+      const start = Math.max(0, end - previewRows);
+      const visible = outputLines.slice(start, end);
+      for (const line of visible) lines.push(pad(truncateToWidth(line, innerWidth)));
+      while (visible.length < previewRows) { visible.push(""); lines.push(pad("")); }
+    }
+
+    lines.push(renderPanelRule(width, theme));
+    lines.push(pad(`${theme.fg("dim", "enter")} focus dock  ${theme.fg("dim", "j/k")} select  ${theme.fg("dim", "x")} stop  ${theme.fg("dim", "c")} clear finished  ${theme.fg("dim", "q")} quit`));
+    return lines;
+  }
+}
+
+function renderToolCall(toolName: string, action: string, mainArg: string | undefined, theme: Theme, optionArgs: string[] = []): Component {
+  const parts = [theme.fg("toolTitle", theme.bold(`${toolName}:`)), theme.fg("accent", action)];
+  if (mainArg) parts.push(theme.fg("accent", mainArg));
+  parts.push(...optionArgs.map(a => theme.fg("dim", a)));
+  return new Text(parts.join(" "), 0, 0);
+}
+
+function renderToolResult(result: AgentToolResult<any>, options: ToolRenderResultOptions, theme: Theme): Component {
+  const details = result.details ?? {};
+  const textBlock = result.content.find(c => c.type === "text") as { type: "text"; text: string } | undefined;
+  const raw = textBlock?.text ?? "";
+  const status = details.status as AgentStatus | undefined;
+  const tone = !details.success ? "error" : status === "completed" ? "success" : status === "failed" ? "error" : status === "running" ? "accent" : "muted";
+  if (!options.expanded) {
+    const summary = details.message ?? (details.id ? `${details.id} ${status ?? ""}` : raw.split(/\r?\n/)[0] ?? "");
+    return new Text(theme.fg(tone as any, truncateToWidth(summary, 160)), 0, 0);
+  }
+
+  const lines: string[] = [];
+  if (details.message) lines.push(theme.fg(tone as any, details.message));
+  if (Array.isArray(details.agents)) {
+    for (const agent of details.agents) {
+      lines.push(`- ${theme.fg("accent", agent.description ?? agent.id)} ${theme.fg("dim", `(${agent.id})`)} ${theme.fg("dim", agent.status ?? "")}`);
+    }
+  }
+  if (details.eventsFile) lines.push(`events: ${theme.fg("accent", details.eventsFile)}`);
+  if (raw && !details.message) lines.push(raw);
+  else if (raw) lines.push("", theme.fg("dim", raw));
+  return new Text(lines.join("\n"), 0, 0);
+}
+
 export default function (pi: ExtensionAPI): void {
   pi.on("session_start", async (_event, ctx) => {
+    if (widgetTimer) clearInterval(widgetTimer);
+    widgetTimer = undefined;
+    dockComponent?.dispose();
+    dockComponent = null;
+    dockTui = null;
+    eventParseCache.clear();
+    currentCtx?.ui.setWidget(STATUS_WIDGET_ID, undefined);
+    currentCtx?.ui.setWidget(LOG_DOCK_WIDGET_ID, undefined);
+    currentCtx?.ui.setWidget(EXT_ID, undefined);
+
     currentCtx = ctx;
     ensureRoot(ctx.cwd);
     records = loadRegistry(ctx.cwd, sessionIdFromCtx(ctx));
-    if (!widgetTimer) widgetTimer = setInterval(() => { void updateWidget(pi); }, 2_000);
+    widgetTimer = setInterval(() => { void updateWidget(pi); }, 2_000);
     await updateWidget(pi);
   });
 
-  pi.on("session_shutdown", async () => {
+  pi.on("session_shutdown", async (_event, ctx) => {
     if (widgetTimer) clearInterval(widgetTimer);
     widgetTimer = undefined;
     currentCtx = undefined;
+    dockComponent?.dispose();
+    dockComponent = null;
+    dockTui = null;
+    eventParseCache.clear();
+    ctx.ui.setWidget(STATUS_WIDGET_ID, undefined);
+    ctx.ui.setWidget(LOG_DOCK_WIDGET_ID, undefined);
+    ctx.ui.setWidget(EXT_ID, undefined);
+  });
+
+  pi.registerCommand("ta", {
+    description: "View and manage tmux subagents",
+    handler: async (_args, ctx) => {
+      if (!ctx.hasUI) return;
+      await refreshAll(pi, ctx.cwd);
+      await ctx.ui.custom<void>((tui, theme, _keybindings, done) => new TmuxAgentsPanelComponent({
+        cwd: ctx.cwd,
+        theme,
+        tui,
+        onClose: () => done(),
+        onFocus: (id: string) => {
+          dockFocusedAgentId = id;
+          dockVisibility = "open";
+          void updateWidget(pi);
+        },
+        onStop: async (id: string) => {
+          const record = records.get(id);
+          if (!record) return;
+          await tmux(pi, record.socketPath, ["kill-session", "-t", record.sessionName]).catch(() => undefined);
+          record.status = "stopped";
+          record.stoppedAt = now();
+          record.completedAt = record.completedAt ?? now();
+          saveRegistry(record.cwd);
+          await updateWidget(pi);
+        },
+        onClearFinished: () => {
+          for (const [id, record] of records) {
+            if (record.cwd === ctx.cwd && record.status !== "running") {
+              eventParseCache.delete(record.eventsFile);
+              records.delete(id);
+            }
+          }
+          saveRegistry(ctx.cwd);
+          void updateWidget(pi);
+        },
+      }));
+    },
+  });
+
+  pi.registerCommand("ta:dock", {
+    description: "Control tmux subagent dock visibility",
+    getArgumentCompletions: () => [
+      { value: "show", label: "show — expand the dock" },
+      { value: "collapse", label: "collapse — show compact dock" },
+      { value: "hide", label: "hide — hide the dock" },
+      { value: "toggle", label: "toggle — cycle dock visibility" },
+    ],
+    handler: async (args, _ctx) => {
+      const arg = args.trim().toLowerCase();
+      if (arg === "show" || arg === "open") dockVisibility = "open";
+      else if (arg === "collapse" || arg === "collapsed") dockVisibility = "collapsed";
+      else if (arg === "hide") dockVisibility = "hidden";
+      else if (dockVisibility === "hidden") dockVisibility = "collapsed";
+      else if (dockVisibility === "collapsed") dockVisibility = "open";
+      else dockVisibility = "collapsed";
+      await updateWidget(pi);
+    },
   });
 
   pi.registerTool({
@@ -468,11 +979,21 @@ export default function (pi: ExtensionAPI): void {
         throw new Error(`tmux failed to start agent: ${res.stderr || res.stdout || `exit ${res.code}`}`);
       }
 
+      if (ctx.hasUI && dockVisibility === "hidden") dockVisibility = "collapsed";
+      dockFocusedAgentId = id;
       await updateWidget(pi);
+      const message = `Started tmux agent.\nID: ${id}\nDescription: ${record.description}\nSession: ${record.sessionName}\nTmux socket: ${record.socketPath}\nTmux list: ${tmuxListCommand(record)}\nTmux attach: ${tmuxAttachCommand(record)}\nEvents: ${record.eventsFile}\nNotify: ${record.notify}`;
       return {
-        content: [{ type: "text" as const, text: `Started tmux agent.\nID: ${id}\nDescription: ${record.description}\nSession: ${record.sessionName}\nTmux socket: ${record.socketPath}\nTmux list: ${tmuxListCommand(record)}\nTmux attach: ${tmuxAttachCommand(record)}\nEvents: ${record.eventsFile}\nNotify: ${record.notify}` }],
-        details: { id, status: record.status, eventsFile: record.eventsFile },
+        content: [{ type: "text" as const, text: message }],
+        details: { action: "spawn", success: true, message: `Started ${record.description} (${id})`, id, description: record.description, status: record.status, eventsFile: record.eventsFile },
       };
+    },
+    renderCall(args, theme) {
+      const opts = [args.notify ? "notify=true" : "", args.extensions === "inherit" ? "extensions=inherit" : ""].filter(Boolean);
+      return renderToolCall("Tmux Agent", "spawn", args.description ? `\"${args.description}\"` : undefined, theme, opts);
+    },
+    renderResult(result, options, theme) {
+      return renderToolResult(result, options, theme);
     },
   });
 
@@ -488,7 +1009,7 @@ export default function (pi: ExtensionAPI): void {
     }),
     async execute(_toolCallId, params, signal, _onUpdate, _ctx) {
       const record = records.get(params.id);
-      if (!record) return { content: [{ type: "text" as const, text: `Agent not found: ${params.id}` }] };
+      if (!record) return { content: [{ type: "text" as const, text: `Agent not found: ${params.id}` }], details: { action: "result", success: false, message: `Agent not found: ${params.id}`, id: params.id } };
 
       const deadline = now() + (typeof params.timeoutMs === "number" ? params.timeoutMs : 60_000);
       let refreshed = await refreshRecord(pi, record, signal);
@@ -496,15 +1017,22 @@ export default function (pi: ExtensionAPI): void {
         await new Promise(r => setTimeout(r, 1_000));
         refreshed = await refreshRecord(pi, record, signal);
       }
-      await maybeNotify(pi, refreshed);
+      if (await maybeNotify(pi, refreshed)) saveRegistry(record.cwd);
       await updateWidget(pi);
 
       const maxChars = typeof params.maxChars === "number" ? Math.max(1000, params.maxChars) : MAX_PREVIEW_CHARS;
       const output = truncateMiddle(refreshed.parsed.assistantText.trim() || "No assistant output yet.", maxChars);
       return {
         content: [{ type: "text" as const, text: `${describeRecord(refreshed.record, refreshed.parsed)}\n\n--- Assistant Output ---\n${output}` }],
-        details: { id: record.id, status: record.status, parsed: refreshed.parsed },
+        details: { action: "result", success: true, message: `${record.description} ${statusLabel(record.status, record.exitCode)}`, id: record.id, description: record.description, status: record.status, parsed: refreshed.parsed },
       };
+    },
+    renderCall(args, theme) {
+      const opts = [args.wait ? "wait=true" : "", typeof args.timeoutMs === "number" ? `timeout=${args.timeoutMs}ms` : ""].filter(Boolean);
+      return renderToolCall("Tmux Agent", "result", args.id, theme, opts);
+    },
+    renderResult(result, options, theme) {
+      return renderToolResult(result, options, theme);
     },
   });
 
@@ -516,12 +1044,21 @@ export default function (pi: ExtensionAPI): void {
     async execute(_toolCallId, _params, _signal, _onUpdate, ctx) {
       const refreshed = await refreshAll(pi, ctx.cwd);
       await updateWidget(pi);
-      if (refreshed.length === 0) return { content: [{ type: "text" as const, text: "No tmux agents for this pi session." }] };
-      const lines = refreshed
-        .sort((a, b) => b.record.startedAt - a.record.startedAt)
+      if (refreshed.length === 0) return { content: [{ type: "text" as const, text: "No tmux agents for this pi session." }], details: { action: "list", success: true, message: "No tmux agents", agents: [] } };
+      const sorted = refreshed.sort((a, b) => b.record.startedAt - a.record.startedAt);
+      const lines = sorted
         .map(({ record, parsed }) => `${statusIcon(record.status)} ${record.id}  ${record.status.padEnd(9)} ${record.description}  tools:${parsed.toolEnds}/${parsed.toolStarts}  ${formatDuration((record.completedAt ?? now()) - record.startedAt)}`);
       const header = `Tmux agents for session ${sessionIdFromCtx(ctx)} (${refreshed.length}):\nTmux socket: ${socketPath(ctx.cwd)}\nTmux list: ${tmuxListCommand(ctx.cwd)}`;
-      return { content: [{ type: "text" as const, text: `${header}\n${lines.join("\n")}` }] };
+      return {
+        content: [{ type: "text" as const, text: `${header}\n${lines.join("\n")}` }],
+        details: { action: "list", success: true, message: `${refreshed.length} tmux agent(s)`, agents: sorted.map(({ record, parsed }) => ({ id: record.id, description: record.description, status: record.status, toolStarts: parsed.toolStarts, toolEnds: parsed.toolEnds })) },
+      };
+    },
+    renderCall(_args, theme) {
+      return renderToolCall("Tmux Agent", "list", undefined, theme);
+    },
+    renderResult(result, options, theme) {
+      return renderToolResult(result, options, theme);
     },
   });
 
@@ -534,14 +1071,21 @@ export default function (pi: ExtensionAPI): void {
     }),
     async execute(_toolCallId, params, signal, _onUpdate, _ctx) {
       const record = records.get(params.id);
-      if (!record) return { content: [{ type: "text" as const, text: `Agent not found: ${params.id}` }] };
+      if (!record) return { content: [{ type: "text" as const, text: `Agent not found: ${params.id}` }], details: { action: "stop", success: false, message: `Agent not found: ${params.id}`, id: params.id } };
       const res = await tmux(pi, record.socketPath, ["kill-session", "-t", record.sessionName], signal);
       record.status = "stopped";
       record.stoppedAt = now();
       record.completedAt = record.completedAt ?? now();
       saveRegistry(record.cwd);
       await updateWidget(pi);
-      return { content: [{ type: "text" as const, text: `Stopped ${record.id} (${record.description}). tmux exit: ${res.code}` }] };
+      const message = `Stopped ${record.id} (${record.description}). tmux exit: ${res.code}`;
+      return { content: [{ type: "text" as const, text: message }], details: { action: "stop", success: true, message, id: record.id, description: record.description, status: record.status } };
+    },
+    renderCall(args, theme) {
+      return renderToolCall("Tmux Agent", "stop", args.id, theme);
+    },
+    renderResult(result, options, theme) {
+      return renderToolResult(result, options, theme);
     },
   });
 }
