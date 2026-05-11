@@ -131,16 +131,18 @@ function loadPrompts(sessionDir: string): string[] {
 // ---------------------------------------------------------------------------
 
 /**
- * Wraps the default editor to intercept Up / Down on the first visual line.
+ * Wraps the default editor to intercept Up / Down at the visual boundary.
  *
  * State machine:
  *   IDLE  – normal editing.
- *   NAV   – user pressed Up on line 0; each Up/Down walks the match list.
+ *   NAV   – user pressed Up on the top visual row; Up/Down walk the match list at boundaries.
  *
  * Transition table:
- *   IDLE + Up (line 0)  → NAV,  snapshot current text as prefix.
- *   NAV  + Up           → move toward older matches.
- *   NAV  + Down         → move toward newer matches.
+ *   IDLE + Up @ top     → NAV,  snapshot current text as prefix.
+ *   NAV  + Up @ top     → move toward older matches.
+ *   NAV  + Up elsewhere → move cursor up, stay in NAV.
+ *   NAV  + Down @ bottom→ move toward newer matches.
+ *   NAV  + Down else    → move cursor down, stay in NAV.
  *   NAV  + Down @ idx 0 → restore prefix, return to IDLE.
  *   NAV  + any other key → IDLE (edit normally).
  */
@@ -163,30 +165,77 @@ class PromptHistoryEditor extends CustomEditor {
   // -- keyboard interception ------------------------------------------------
 
   handleInput(data: string): void {
-    if (matchesKey(data, "up")) {
-      const cursor = this.getCursor();
-      if (cursor.line === 0) {
-        this.navigateUp();
-        return;
-      }
-    }
+    const isUp = matchesKey(data, "up");
+    const isDown = matchesKey(data, "down");
 
-    // While navigating: Down walks the match list, cursor-movement /
-    // Enter / Shift+Enter pass through, anything else exits navigation.
+    // While navigating, keep Up/Down as editor movement until the caret reaches
+    // the visual boundary.  This is important for recalled prompts that span
+    // multiple logical lines or wrap across multiple terminal rows: leaving NAV
+    // while moving through them would make the next boundary Up treat the
+    // recalled prompt itself as a new prefix, so older prompts could no longer
+    // be reached.
     if (this.historyNavIndex >= 0) {
-      if (matchesKey(data, "down")) {
-        this.navigateDown();
+      if (isUp) {
+        if (this.isAtFirstVisualLine()) {
+          this.navigateUp();
+        } else {
+          super.handleInput(data);
+        }
         return;
       }
+
+      if (isDown) {
+        if (this.isAtLastVisualLine()) {
+          this.navigateDown();
+        } else {
+          super.handleInput(data);
+        }
+        return;
+      }
+
+      // Cursor-movement / Enter / Shift+Enter pass through, anything else exits
+      // navigation and edits normally.
       if (!isNavigationPassthroughKey(data)) {
         this.exitNavigation();
       }
+
+      super.handleInput(data);
+      return;
+    }
+
+    if (isUp && this.isAtFirstVisualLine()) {
+      this.navigateUp();
+      return;
     }
 
     super.handleInput(data);
   }
 
   // -- navigation -----------------------------------------------------------
+
+  /**
+   * True when the caret is on the first visual row of the editor.
+   *
+   * pi-tui's editor already has visual-line helpers; they are TypeScript-private
+   * but present at runtime.  Falling back to logical lines keeps the extension
+   * usable if the helper names change in a future pi-tui version.
+   */
+  private isAtFirstVisualLine(): boolean {
+    const helper = (this as unknown as { isOnFirstVisualLine?: () => boolean })
+      .isOnFirstVisualLine;
+    if (typeof helper === "function") return helper.call(this);
+
+    return this.getCursor().line === 0;
+  }
+
+  /** Same as {@link isAtFirstVisualLine}, but for the bottom visual row. */
+  private isAtLastVisualLine(): boolean {
+    const helper = (this as unknown as { isOnLastVisualLine?: () => boolean })
+      .isOnLastVisualLine;
+    if (typeof helper === "function") return helper.call(this);
+
+    return this.getCursor().line === this.getLines().length - 1;
+  }
 
   /** Move one step toward older matches. */
   private navigateUp(): void {
