@@ -1,17 +1,12 @@
 {
-  "lastChangelogVersion": "999.999.999",
-  "defaultProvider": "openai-codex",
+  "lastChangelogVersion": "0.73.1",
   "defaultThinkingLevel": "high",
-  "extensions": [
-    "extensions/00-async-tools.ts"
-  ],
   "packages": [
-    "npm:@aliou/pi-processes",
-    "npm:@juicesharp/rpiv-todo",
-    "npm:@juicesharp/rpiv-ask-user-question",
-    "npm:@juicesharp/rpiv-btw",
-    "npm:pi-smart-fetch",
-    "npm:@tintinweb/pi-subagents",
-    "npm:pi-claude-bridge"
+    "npm:@aliou/pi-processes@0.9.0",
+    "npm:@juicesharp/rpiv-todo@1.3.0",
+    "npm:@juicesharp/rpiv-ask-user-question@1.3.0",
+    "npm:@juicesharp/rpiv-btw@1.3.0",
+    "npm:pi-smart-fetch@0.3.5",
+    "npm:pi-claude-bridge@0.4.0"
   ]
 }
