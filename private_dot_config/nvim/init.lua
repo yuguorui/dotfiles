@@ -1,6 +1,21 @@
 vim.g.mapleader = " " -- Make sure to set `mapleader` before lazy so your mappings are correct
 vim.o.background = "light"
 
+-- Disable Neovim's automatic background detection via OSC 11 (causes colorscheme
+-- reset when switching tmux panes). Remove all TermResponse autocmds from the
+-- built-in nvim_terminal group that handle background detection.
+vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    callback = function()
+        local aus = vim.api.nvim_get_autocmds({ event = "TermResponse" })
+        for _, au in ipairs(aus) do
+            if au.desc and au.desc:find("background") then
+                vim.api.nvim_del_autocmd(au.id)
+            end
+        end
+    end,
+})
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
