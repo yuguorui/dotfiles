@@ -1,0 +1,32 @@
+{{- $existingPath := joinPath .chezmoi.homeDir ".pi" "agent" "settings.json" -}}
+{{- $existing := dict -}}
+{{- if stat $existingPath -}}
+{{-   $existing = fromJson (include $existingPath) -}}
+{{- end -}}
+{{- $localProvider := "" -}}
+{{- $localModel := "" -}}
+{{- if hasKey $existing "defaultProvider" -}}
+{{-   $localProvider = $existing.defaultProvider -}}
+{{- end -}}
+{{- if hasKey $existing "defaultModel" -}}
+{{-   $localModel = $existing.defaultModel -}}
+{{- end -}}
+{
+  "lastChangelogVersion": "0.74.1",
+{{- if $localProvider }}
+  "defaultProvider": {{ $localProvider | toJson }},
+{{- end }}
+{{- if $localModel }}
+  "defaultModel": {{ $localModel | toJson }},
+{{- end }}
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:@aliou/pi-processes@0.9.0",
+    "npm:@juicesharp/rpiv-todo@1.3.0",
+    "npm:@juicesharp/rpiv-ask-user-question@1.3.0",
+    "npm:@juicesharp/rpiv-btw@1.3.0",
+    "npm:pi-smart-fetch@0.3.5",
+    "npm:pi-claude-bridge@0.4.0",
+    "npm:pi-subagents"
+  ]
+}
