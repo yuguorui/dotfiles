@@ -285,28 +285,32 @@ require("lazy").setup({
         build = ":TSUpdate",
         config = function()
             if vim.fn.executable("tree-sitter") == 0 then
-                local uname = vim.uv.os_uname()
-                local os_name = ({ Linux = "linux", Darwin = "macos", Windows_NT = "windows" })[uname.sysname]
-                local arch = ({ x86_64 = "x64", aarch64 = "arm64", arm64 = "arm64", arm = "arm" })[uname.machine]
-                if os_name and arch then
-                    local ver = "v0.26.8"
-                    local zip = ("tree-sitter-cli-%s-%s.zip"):format(os_name, arch)
-                    local url = ("https://github.com/tree-sitter/tree-sitter/releases/download/%s/%s"):format(ver, zip)
-                    local dest = vim.fn.expand("~/.local/bin")
-                    vim.fn.mkdir(dest, "p")
-                    local tmp = vim.fn.tempname() .. ".zip"
-                    vim.notify("tree-sitter-cli: downloading " .. zip .. " ...")
-                    vim.fn.system({ "curl", "-sL", "-o", tmp, url })
-                    if vim.v.shell_error == 0 then
-                        vim.fn.system({ "unzip", "-oq", tmp, "-d", dest })
-                        vim.fn.system({ "chmod", "+x", dest .. "/tree-sitter" })
-                        os.remove(tmp)
-                        if not vim.env.PATH:find(dest, 1, true) then
-                            vim.env.PATH = dest .. ":" .. vim.env.PATH
+                local dest = vim.fn.expand("~/.local/bin")
+                if vim.fn.executable(dest .. "/tree-sitter") == 1 then
+                    vim.env.PATH = dest .. ":" .. vim.env.PATH
+                else
+                    local uname = vim.uv.os_uname()
+                    local os_name = ({ Linux = "linux", Darwin = "macos", Windows_NT = "windows" })[uname.sysname]
+                    local arch = ({ x86_64 = "x64", aarch64 = "arm64", arm64 = "arm64", arm = "arm" })[uname.machine]
+                    if os_name and arch then
+                        local ver = "v0.26.8"
+                        local zip = ("tree-sitter-cli-%s-%s.zip"):format(os_name, arch)
+                        local url = ("https://github.com/tree-sitter/tree-sitter/releases/download/%s/%s"):format(ver, zip)
+                        vim.fn.mkdir(dest, "p")
+                        local tmp = vim.fn.tempname() .. ".zip"
+                        vim.notify("tree-sitter-cli: downloading " .. zip .. " ...")
+                        vim.fn.system({ "curl", "-sL", "-o", tmp, url })
+                        if vim.v.shell_error == 0 then
+                            vim.fn.system({ "unzip", "-oq", tmp, "-d", dest })
+                            vim.fn.system({ "chmod", "+x", dest .. "/tree-sitter" })
+                            os.remove(tmp)
+                            if not vim.env.PATH:find(dest, 1, true) then
+                                vim.env.PATH = dest .. ":" .. vim.env.PATH
+                            end
+                            vim.notify("tree-sitter-cli: installed to " .. dest)
+                        else
+                            vim.notify("tree-sitter-cli: download failed", vim.log.levels.WARN)
                         end
-                        vim.notify("tree-sitter-cli: installed to " .. dest)
-                    else
-                        vim.notify("tree-sitter-cli: download failed", vim.log.levels.WARN)
                     end
                 end
             end
