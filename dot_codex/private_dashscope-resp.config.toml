@@ -1,0 +1,19 @@
+model = "qwen3.7-max"
+model_provider = "dashscope-resp"
+model_catalog_json = "~/.codex/dashscope-resp-models.json"
+model_reasoning_effort = "xhigh"
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state"]
+status_line_use_colors = true
+
+[model_providers.dashscope-resp]
+name = "DashScope Responses"
+base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/nocache-forward/v1"
+env_key = "DASHSCOPE_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 99
+request_max_retry_delay_ms = 60000
+extra_body = { reasoning = { effort = "high" }, tools = [{ type = "web_search" }, { type = "web_extractor" }, { type = "code_interpreter" }] }
+
