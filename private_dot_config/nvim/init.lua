@@ -132,7 +132,7 @@ require("lazy").setup({
     -- telescope
     {
         'nvim-telescope/telescope.nvim',
-        version = '0.1.5',
+        -- Track master: 0.1.x tags still call removed nvim-treesitter APIs on Neovim 0.12+.
         keys = {
             {"<leader>f", ":Telescope find_files<CR>", silent = true, noremap = true,},
             {"<leader>fg", ":Telescope live_grep<CR>", silent = true, noremap = true,},
