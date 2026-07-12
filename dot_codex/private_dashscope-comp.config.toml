@@ -1,11 +1,13 @@
-model = "glm-5.1"
+model = "glm-5.2"
 model_provider = "dashscope"
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
-model_reasoning_effort = "none"
+model_reasoning_effort = "xhigh"
+approvals_reviewer = "auto_review"
 
 [tui]
-status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state"]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
 status_line_use_colors = true
+theme = "monokai-extended-light"
 
 [model_providers.dashscope]
 name = "DashScope"
@@ -13,7 +15,7 @@ base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/nocache-fo
 env_key = "DASHSCOPE_API_KEY"
 wire_api = "chat"
 requires_openai_auth = false
-extra_body = { reasoning_effort = "high" }
+extra_body = { preserve_thinking = true }
 request_max_retries = 99
 request_max_retry_delay_ms = 10000
 model_catalog_json = "~/.codex/dashscope-completion-models.json"

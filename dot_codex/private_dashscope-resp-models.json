@@ -15,7 +15,7 @@
           "description": "high"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 1,
@@ -40,7 +40,9 @@
       "max_context_window": 1000000,
       "auto_compact_token_limit": null,
       "effective_context_window_percent": 95,
-      "experimental_supported_tools": [],
+      "experimental_supported_tools": [
+        "claude_simple_tools"
+      ],
       "input_modalities": [
         "text"
       ],
