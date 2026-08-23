@@ -317,6 +317,7 @@ require("lazy").setup({
 
             local ts = require("nvim-treesitter")
             ts.setup {}
+            ts.install({ "markdown", "markdown_inline" })
 
             vim.api.nvim_create_autocmd("FileType", {
                 callback = function(ev)
@@ -324,6 +325,14 @@ require("lazy").setup({
                 end,
             })
         end,
+    },
+    {
+        'MeanderingProgrammer/render-markdown.nvim',
+        dependencies = {
+            'nvim-treesitter/nvim-treesitter',
+            'nvim-tree/nvim-web-devicons',
+        },
+        opts = {},
     },
     {
         'nvim-treesitter/nvim-treesitter-context',
