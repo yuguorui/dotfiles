@@ -1,18 +1,14 @@
 {
   "models": [
     {
-      "slug": "qwen3.8-max",
-      "display_name": "Qwen3.8 Max",
-      "description": "DashScope OpenAI-compatible Qwen3.8 Max model. 1M context, supports thinking and function calling.",
-      "default_reasoning_level": "xhigh",
+      "slug": "kimi-k3",
+      "display_name": "Kimi K3",
+      "description": "Kimi K3 via Anthropic-compatible API. Long-context coding model with tool calling support.",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
-        },
-        {
-          "effort": "high",
-          "description": "high"
+          "effort": "max",
+          "description": "only max"
         }
       ],
       "shell_type": "unified_exec",
@@ -27,7 +23,7 @@
       "default_reasoning_summary": "none",
       "support_verbosity": false,
       "default_verbosity": null,
-      "apply_patch_tool_type": "claude_code",
+      "apply_patch_tool_type": "freeform",
       "truncation_policy": {
         "mode": "bytes",
         "limit": 40000
@@ -40,27 +36,77 @@
       "effective_context_window_percent": 40,
       "experimental_supported_tools": [],
       "input_modalities": [
-        "text",
-        "image"
+        "text"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     },
     {
-      "slug": "qwen3.8-flash",
-      "display_name": "Qwen3.8 Flash",
-      "description": "DashScope Qwen3.8 Flash multimodal model. 1M context, 128K max output, supports thinking and function calling. Cost-efficient tier.",
-      "default_reasoning_level": "xhigh",
+      "slug": "k3",
+      "display_name": "K3",
+      "description": "Kimi For Coding flagship (coding plan ID). 1M context with eligible membership, thinking + multimodal. Effort: low/high/max.",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low"
         },
         {
           "effort": "high",
-          "description": "high"
+          "description": "high - recommended"
+        },
+        {
+          "effort": "max",
+          "description": "max"
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 1,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "supports_reasoning_summaries": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": false,
+      "default_verbosity": null,
+      "apply_patch_tool_type": "freeform",
+      "truncation_policy": {
+        "mode": "bytes",
+        "limit": 40000
+      },
+      "supports_parallel_tool_calls": true,
+      "supports_image_detail_original": false,
+      "context_window": 1000000,
+      "max_context_window": 1000000,
+      "auto_compact_token_limit": null,
+      "effective_context_window_percent": 40,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text"
+      ],
+      "supports_search_tool": false,
+      "extra_body": {}
+    },
+    {
+      "slug": "k3-256k",
+      "display_name": "K3-256K",
+      "description": "Kimi For Coding K3 with 256K context. Same quality as k3 within 256K, ~half the cost, no video input.",
+      "default_reasoning_level": "high",
+      "supported_reasoning_levels": [
+        {
+          "effort": "low",
+          "description": "low"
+        },
+        {
+          "effort": "high",
+          "description": "high - recommended"
+        },
+        {
+          "effort": "max",
+          "description": "max"
         }
       ],
       "shell_type": "unified_exec",
@@ -75,33 +121,43 @@
       "default_reasoning_summary": "none",
       "support_verbosity": false,
       "default_verbosity": null,
-      "apply_patch_tool_type": "claude_code",
+      "apply_patch_tool_type": "freeform",
       "truncation_policy": {
         "mode": "bytes",
         "limit": 40000
       },
       "supports_parallel_tool_calls": true,
       "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
+      "context_window": 262144,
+      "max_context_window": 262144,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 40,
+      "effective_context_window_percent": 95,
       "experimental_supported_tools": [],
       "input_modalities": [
-        "text",
-        "image"
+        "text"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     },
     {
-      "slug": "deepseek-v4-pro",
-      "display_name": "DeepSeek V4 Pro",
-      "description": "DashScope-hosted DeepSeek V4 Pro, GA snapshot V4-Pro-0813 (joined Bailian 2026-08-21). 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
-      "default_reasoning_level": null,
-      "supported_reasoning_levels": [],
+      "slug": "kimi-for-coding",
+      "display_name": "K2.7 Code",
+      "description": "Kimi For Coding K2.7 Code (coding plan ID). 256K context, coding-focused with thinking mode and image input.",
+      "default_reasoning_level": "high",
+      "supported_reasoning_levels": [
+        {
+          "effort": "high",
+          "description": "high - recommended for complex coding tasks"
+        },
+        {
+          "effort": "medium",
+          "description": "medium"
+        },
+        {
+          "effort": "low",
+          "description": "low"
+        }
+      ],
       "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
@@ -110,48 +166,6 @@
       "service_tiers": [],
       "availability_nux": null,
       "upgrade": null,
-      "model_messages": null,
-      "supports_reasoning_summaries": false,
-      "default_reasoning_summary": "none",
-      "support_verbosity": false,
-      "default_verbosity": null,
-      "apply_patch_tool_type": "freeform",
-      "truncation_policy": {
-        "mode": "bytes",
-        "limit": 40000
-      },
-      "supports_parallel_tool_calls": false,
-      "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
-      "auto_compact_token_limit": null,
-      "effective_context_window_percent": 95,
-      "experimental_supported_tools": [],
-      "input_modalities": [
-        "text"
-      ],
-      "supports_search_tool": false
-    },
-    {
-      "slug": "kimi-k3",
-      "display_name": "Kimi K3",
-      "description": "DashScope Moonshot-hosted Kimi K3 (official model ID kimi/kimi-k3, cn-beijing region). 1M context, thinking-only, multimodal, supports function calling.",
-      "default_reasoning_level": "max",
-      "supported_reasoning_levels": [
-        {
-          "effort": "max",
-          "description": "max - thinking-only model"
-        }
-      ],
-      "shell_type": "unified_exec",
-      "visibility": "list",
-      "supported_in_api": true,
-      "priority": 6,
-      "additional_speed_tiers": [],
-      "service_tiers": [],
-      "availability_nux": null,
-      "upgrade": null,
-      "model_messages": null,
       "supports_reasoning_summaries": false,
       "default_reasoning_summary": "none",
       "support_verbosity": false,
@@ -163,105 +177,44 @@
       },
       "supports_parallel_tool_calls": true,
       "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
-      "auto_compact_token_limit": null,
-      "effective_context_window_percent": 40,
-      "experimental_supported_tools": [],
-      "input_modalities": [
-        "text",
-        "image"
-      ],
-      "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "max"
-      }
-    },
-    {
-      "slug": "deepseek-v4-pro-0813",
-      "display_name": "DeepSeek V4 Pro 0813",
-      "description": "DashScope-hosted DeepSeek V4 Pro GA snapshot V4-Pro-0813. 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
-      "default_reasoning_level": "high",
-      "supported_reasoning_levels": [
-        {
-          "effort": "low",
-          "description": "low"
-        },
-        {
-          "effort": "high",
-          "description": "high"
-        },
-        {
-          "effort": "max",
-          "description": "max"
-        }
-      ],
-      "shell_type": "unified_exec",
-      "visibility": "list",
-      "supported_in_api": true,
-      "priority": 7,
-      "additional_speed_tiers": [],
-      "service_tiers": [],
-      "availability_nux": null,
-      "upgrade": null,
-      "model_messages": null,
-      "supports_reasoning_summaries": false,
-      "default_reasoning_summary": "none",
-      "support_verbosity": false,
-      "default_verbosity": null,
-      "apply_patch_tool_type": "freeform",
-      "truncation_policy": {
-        "mode": "bytes",
-        "limit": 40000
-      },
-      "supports_parallel_tool_calls": false,
-      "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
+      "context_window": 256000,
+      "max_context_window": 256000,
       "auto_compact_token_limit": null,
       "effective_context_window_percent": 95,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": false,
+      "extra_body": {}
     },
     {
-      "slug": "deepseek-v4-flash-0731",
-      "display_name": "DeepSeek V4 Flash 0731",
-      "description": "DashScope-hosted DeepSeek V4 Flash GA snapshot V4-Flash-0731. 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
+      "slug": "kimi-for-coding-highspeed",
+      "display_name": "K2.7 Code HighSpeed",
+      "description": "High-speed variant of K2.7 Code, 5-6x faster output. 256K context, same capabilities as kimi-for-coding.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "low",
-          "description": "low"
+          "effort": "high",
+          "description": "high - recommended for complex coding tasks"
         },
         {
           "effort": "medium",
           "description": "medium"
         },
         {
-          "effort": "high",
-          "description": "high"
-        },
-        {
-          "effort": "xhigh",
-          "description": "xhigh"
-        },
-        {
-          "effort": "max",
-          "description": "max"
+          "effort": "low",
+          "description": "low"
         }
       ],
       "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
-      "priority": 8,
+      "priority": 4,
       "additional_speed_tiers": [],
       "service_tiers": [],
       "availability_nux": null,
       "upgrade": null,
-      "model_messages": null,
       "supports_reasoning_summaries": false,
       "default_reasoning_summary": "none",
       "support_verbosity": false,
@@ -271,17 +224,18 @@
         "mode": "bytes",
         "limit": 40000
       },
-      "supports_parallel_tool_calls": false,
+      "supports_parallel_tool_calls": true,
       "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
+      "context_window": 256000,
+      "max_context_window": 256000,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 90,
+      "effective_context_window_percent": 95,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": false,
+      "extra_body": {}
     }
   ]
 }

@@ -1,0 +1,30 @@
+# GLM Coding Plan via BigModel (https://docs.bigmodel.cn/cn/coding-plan/tool/codex)
+# Usage: export ZAI_API_KEY="<your API key>" and copy this file over config.toml,
+# or reference it as the active config when launching Codex.
+model_provider = "ZAI"
+model = "glm-5.3"
+model_reasoning_effort = "max"
+service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
+model_catalog_json = "~/.codex/bigmodel-models.json"
+
+[model_providers.ZAI]
+name = "ZAI"
+base_url = "https://open.bigmodel.cn/api/v1"
+env_key = "ZAI_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+
+# GLM Coding Plan 联网搜索 MCP（工具: webSearchPrime）
+[mcp_servers.zai-web-search]
+url = "https://open.bigmodel.cn/api/mcp/web_search_prime/mcp"
+bearer_token_env_var = "ZAI_API_KEY"
+
+# GLM Coding Plan 网页读取 MCP（工具: webReader）
+[mcp_servers.zai-web-reader]
+url = "https://open.bigmodel.cn/api/mcp/web_reader/mcp"
+bearer_token_env_var = "ZAI_API_KEY"
+
+# GLM Coding Plan 开源仓库 MCP（工具: search_doc / get_repo_structure / read_file）
+[mcp_servers.zai-zread]
+url = "https://open.bigmodel.cn/api/mcp/zread/mcp"
+bearer_token_env_var = "ZAI_API_KEY"

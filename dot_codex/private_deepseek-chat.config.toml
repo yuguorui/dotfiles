@@ -1,0 +1,17 @@
+model = "deepseek-v4-flash-vision-exp"
+model_provider = "deepseek-chat"
+model_catalog_json = "~/.codex/deepseek-chat-models.json"
+model_reasoning_effort = "max"
+service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
+status_line_use_colors = true
+
+[model_providers.deepseek-chat]
+name = "DeepSeek Chat"
+base_url = "https://api.deepseek.com"
+env_base_url = "DEEPSEEK_CHAT_BASE_URL"
+env_key = "DEEPSEEK_API_KEY"
+wire_api = "chat"
+requires_openai_auth = false

@@ -1,17 +1,18 @@
-model = "glm-5.2"
+model = "qwen3.8-flash"
 model_provider = "dashscope"
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
 model_reasoning_effort = "xhigh"
+service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 approvals_reviewer = "auto_review"
 
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
 status_line_use_colors = true
-theme = "monokai-extended-light"
+theme = "gruvbox-light"
 
 [model_providers.dashscope]
 name = "DashScope"
-base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/nocache-forward/v1"
+env_base_url = "DASHSCOPE_BASE_URL"
 env_key = "DASHSCOPE_API_KEY"
 wire_api = "chat"
 requires_openai_auth = false
@@ -19,3 +20,24 @@ extra_body = { preserve_thinking = true }
 request_max_retries = 99
 request_max_retry_delay_ms = 10000
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
+
+[projects."/Users/yuguorui/Code/openai/codex"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/xiaomi/aircond-auto"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/test"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/LollipopKit/flutter_server_box"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/bongocat"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/rfor"]
+trust_level = "trusted"

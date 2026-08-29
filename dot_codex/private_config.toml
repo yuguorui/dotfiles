@@ -1,18 +1,53 @@
-[marketplaces.openai-bundled]
-last_updated = "2026-05-09T17:42:35Z"
-source = "/Users/yuguorui/.codex/.tmp/bundled-marketplaces/openai-bundled"
-source_type = "local"
+model_provider = "codex"
+model = "gpt-5.6-sol"
+review_model = "gpt-5.4"
+model_reasoning_effort = "high"
+windows_wsl_setup_acknowledged = true
+model_context_window = 1000000
 
-[marketplaces.openai-primary-runtime]
-last_updated = "2026-05-09T17:42:59Z"
-source = "/Users/yuguorui/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-source_type = "local"
+sandbox_mode = "workspace-write"
+service_tier = "fast"
+approvals_reviewer = "auto_review"
 
-[marketplaces.claude-plugins-official]
-last_updated = "2026-05-24T14:24:32Z"
-last_revision = "3449c10cd1f254c2529a4a7e96a094ef118a00a5"
-source_type = "git"
-source = "https://github.com/anthropics/claude-plugins-official.git"
+notify = ["/Users/yuguorui/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+
+[agents]
+max_threads = 1000000
+
+[sandbox_workspace_write]
+network_access = true
+
+[model_providers.codex]
+name = "codex"
+base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/codex/v1"
+env_key = "DASHSCOPE_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 99
+request_max_retry_delay_ms = 60000
+supports_websockets = false
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "fast-mode"]
+status_line_use_colors = true
+session_picker_view = "comfortable"
+pet = "bongo-cat"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+"gpt-5.6-sol" = 4
+
+[desktop]
+followUpQueueMode = "queue"
+dock-icon-preference = "app-default"
+conversationDetailMode = "STEPS_COMMANDS"
+
+[features]
+apps = false
+js_repl = false
+# multi_agent = true
+# multi_agent_v2 = false
+workflows = true
 
 [mcp_servers.browsermcp]
 command = "npx"
@@ -21,11 +56,41 @@ args = ["@browsermcp/mcp@latest"]
 [mcp_servers.exa]
 url = "https://mcp.exa.ai/mcp"
 
-[agents]
-max_threads = 1000000
+[mcp_servers.websearch]
+url = "https://internal-support.sec-gateway-higress.aliyuncs.com/iqs-mcp/mcp-servers/iqs-mcp-server-search"
+bearer_token_env_var = "IQS_API_KEY"
 
-[plugins."browser-use@openai-bundled"]
-enabled = true
+[mcp_servers.webfetch]
+url = "https://internal-support.sec-gateway-higress.aliyuncs.com/iqs-mcp/mcp-servers/iqs-mcp-server-readpage"
+bearer_token_env_var = "IQS_API_KEY"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/yuguorui/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+CODEX_HOME = "/Users/yuguorui/.codex"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_TINYSKY_ENABLED = "0"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.820.60940"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/yuguorui/.codex/plugins/cache/openai-bundled/browser/26.820.60940/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+SKY_CUA_SERVICE_PATH = "/Users/yuguorui/.codex/computer-use/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
 
 [plugins."documents@openai-primary-runtime"]
 enabled = true
@@ -36,9 +101,52 @@ enabled = true
 [plugins."spreadsheets@openai-primary-runtime"]
 enabled = true
 
-[tui]
-status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size"]
-status_line_use_colors = true
+[plugins."github@openai-curated"]
+enabled = true
 
-[tui.model_availability_nux]
-"gpt-5.5" = 4
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[projects."/Users/yuguorui/Code/openai/codex"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Downloads"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/openai/codex-security"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/xiaomi/aircond-auto"]
+trust_level = "trusted"
+
+[projects."/Users/yuguorui/Code/rfor"]
+trust_level = "trusted"
+
+[marketplaces.openai-bundled]
+source_type = "local"
+source = "/Users/yuguorui/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+source_type = "local"
+source = "/Users/yuguorui/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
