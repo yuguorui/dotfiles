@@ -14,17 +14,36 @@ env_key = "ZAI_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
 
+# BigModel MCP 网关对 notifications/initialized 返回 200+空body（MCP 规范要求 202），
+# Codex 自带 rmcp HTTP 客户端只接受 202/204，直连必然报 "Transport channel closed"。
+# 改用 mcp-remote（官方 TS SDK 实现，兼容 200 空body）作 stdio 桥接。
+# ZAI_API_KEY 需在 Codex 启动环境中可用；Codex 会清理 stdio MCP 子进程环境，
+# 因此每个 server 必须用 env_vars 显式转发 ZAI_API_KEY，mcp-remote 才能展开 ${ZAI_API_KEY}。
+# 待 Codex/rmcp 放宽状态码校验或 BigModel 修复为 202 后，可改回直连：
+#   url = "https://open.bigmodel.cn/api/mcp/<name>/mcp"
+#   bearer_token_env_var = "ZAI_API_KEY"
+
 # GLM Coding Plan 联网搜索 MCP（工具: webSearchPrime）
 [mcp_servers.zai-web-search]
-url = "https://open.bigmodel.cn/api/mcp/web_search_prime/mcp"
-bearer_token_env_var = "ZAI_API_KEY"
+env_vars = ["ZAI_API_KEY"]
+command = "npx"
+args = ["-y", "mcp-remote@0.8.2", "https://open.bigmodel.cn/api/mcp/web_search_prime/mcp", "--header", "Authorization:Bearer ${ZAI_API_KEY}"]
+startup_timeout_sec = 60
 
 # GLM Coding Plan 网页读取 MCP（工具: webReader）
 [mcp_servers.zai-web-reader]
-url = "https://open.bigmodel.cn/api/mcp/web_reader/mcp"
-bearer_token_env_var = "ZAI_API_KEY"
+env_vars = ["ZAI_API_KEY"]
+command = "npx"
+args = ["-y", "mcp-remote@0.8.2", "https://open.bigmodel.cn/api/mcp/web_reader/mcp", "--header", "Authorization:Bearer ${ZAI_API_KEY}"]
+startup_timeout_sec = 60
 
 # GLM Coding Plan 开源仓库 MCP（工具: search_doc / get_repo_structure / read_file）
 [mcp_servers.zai-zread]
-url = "https://open.bigmodel.cn/api/mcp/zread/mcp"
-bearer_token_env_var = "ZAI_API_KEY"
+env_vars = ["ZAI_API_KEY"]
+command = "npx"
+args = ["-y", "mcp-remote@0.8.2", "https://open.bigmodel.cn/api/mcp/zread/mcp", "--header", "Authorization:Bearer ${ZAI_API_KEY}"]
+startup_timeout_sec = 60
+
+[features]
+memories = true
+
