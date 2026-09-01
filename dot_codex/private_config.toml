@@ -45,6 +45,7 @@ conversationDetailMode = "STEPS_COMMANDS"
 [features]
 apps = false
 js_repl = false
+memories = true
 # multi_agent = true
 # multi_agent_v2 = false
 workflows = true

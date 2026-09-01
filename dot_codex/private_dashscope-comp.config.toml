@@ -1,9 +1,12 @@
-model = "qwen3.8-flash"
+model = "qwen3.8-27b"
 model_provider = "dashscope"
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
 model_reasoning_effort = "xhigh"
 service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 approvals_reviewer = "auto_review"
+
+[features]
+memories = true
 
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
