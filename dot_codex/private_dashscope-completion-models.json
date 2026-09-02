@@ -145,6 +145,58 @@
       }
     },
     {
+      "slug": "qwen3.8-2.4t-a95b",
+      "display_name": "Qwen3.8 2.4T A95B",
+      "description": "DashScope Qwen3.8-2.4T-A95B text-only thinking model. 1M context, 128K max output, supports reasoning, function calling, and Codex tool use.",
+      "default_reasoning_level": "xhigh",
+      "supported_reasoning_levels": [
+        {
+          "effort": "xhigh",
+          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+        },
+        {
+          "effort": "medium",
+          "description": "medium - balanced reasoning depth"
+        },
+        {
+          "effort": "low",
+          "description": "low - faster, lower-cost reasoning"
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 5,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "supports_reasoning_summaries": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": false,
+      "default_verbosity": null,
+      "apply_patch_tool_type": "claude_code",
+      "truncation_policy": {
+        "mode": "bytes",
+        "limit": 40000
+      },
+      "supports_parallel_tool_calls": true,
+      "supports_image_detail_original": false,
+      "context_window": 1000000,
+      "max_context_window": 1000000,
+      "auto_compact_token_limit": null,
+      "effective_context_window_percent": 40,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text"
+      ],
+      "supports_search_tool": false,
+      "extra_body": {
+        "enable_thinking": true,
+        "reasoning_effort": "xhigh"
+      }
+    },
+    {
       "slug": "deepseek-v4-pro",
       "display_name": "DeepSeek V4 Pro",
       "description": "DashScope-hosted DeepSeek V4 Pro, GA snapshot V4-Pro-0813 (joined Bailian 2026-08-21). 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
