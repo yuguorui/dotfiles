@@ -4,15 +4,19 @@
       "slug": "qwen3.8-max",
       "display_name": "Qwen3.8 Max",
       "description": "DashScope OpenAI-compatible Qwen3.8 Max model. 1M context, supports thinking and function calling.",
-      "default_reasoning_level": "xhigh",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
-          "effort": "high",
-          "description": "high"
+          "effort": "medium",
+          "description": "medium - deeper reasoning"
+        },
+        {
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -44,23 +48,25 @@
         "image"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     },
     {
       "slug": "qwen3.8-flash",
       "display_name": "Qwen3.8 Flash",
       "description": "DashScope Qwen3.8 Flash multimodal model. 1M context, 128K max output, supports thinking and function calling. Cost-efficient tier.",
-      "default_reasoning_level": "xhigh",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
-          "effort": "high",
-          "description": "high"
+          "effort": "medium",
+          "description": "medium - deeper reasoning"
+        },
+        {
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -92,23 +98,25 @@
         "image"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     },
     {
       "slug": "qwen3.8-27b",
       "display_name": "Qwen3.8 27B",
       "description": "DashScope Qwen3.8 27B multimodal model. 1M context, 128K max output, supports thinking and function calling.",
-      "default_reasoning_level": "xhigh",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
-          "effort": "high",
-          "description": "high"
+          "effort": "medium",
+          "description": "medium - deeper reasoning"
+        },
+        {
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -140,27 +148,25 @@
         "image"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     },
     {
       "slug": "qwen3.8-2.4t-a95b",
       "display_name": "Qwen3.8 2.4T A95B",
       "description": "DashScope Qwen3.8-2.4T-A95B text-only thinking model. 1M context, 128K max output, supports reasoning, function calling, and Codex tool use.",
-      "default_reasoning_level": "xhigh",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
           "effort": "medium",
-          "description": "medium - balanced reasoning depth"
+          "description": "medium - deeper reasoning"
         },
         {
-          "effort": "low",
-          "description": "low - faster, lower-cost reasoning"
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -192,16 +198,28 @@
       ],
       "supports_search_tool": false,
       "extra_body": {
-        "enable_thinking": true,
-        "reasoning_effort": "xhigh"
+        "enable_thinking": true
       }
     },
     {
       "slug": "deepseek-v4-pro",
       "display_name": "DeepSeek V4 Pro",
       "description": "DashScope-hosted DeepSeek V4 Pro, GA snapshot V4-Pro-0813 (joined Bailian 2026-08-21). 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
-      "default_reasoning_level": null,
-      "supported_reasoning_levels": [],
+      "default_reasoning_level": "high",
+      "supported_reasoning_levels": [
+        {
+          "effort": "low",
+          "description": "low - lighter reasoning"
+        },
+        {
+          "effort": "high",
+          "description": "high - Bailian default; medium and xhigh also land here"
+        },
+        {
+          "effort": "max",
+          "description": "max - deepest reasoning"
+        }
+      ],
       "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
@@ -235,28 +253,20 @@
     {
       "slug": "kimi-k3",
       "display_name": "Kimi K3",
-      "description": "DashScope Moonshot-hosted Kimi K3 (official model ID kimi/kimi-k3, cn-beijing region). 1M context, thinking-only, multimodal, supports function calling.",
+      "description": "DashScope-hosted Moonshot Kimi K3 (model ID kimi-k3). 1M context, thinking-only, multimodal, supports function calling. Official top-level reasoning_effort is low/high/max; thinking_budget is rejected by this endpoint.",
       "default_reasoning_level": "max",
       "supported_reasoning_levels": [
         {
-          "effort": "max",
-          "description": "max - highest thinking depth (default)"
-        },
-        {
-          "effort": "xhigh",
-          "description": "xhigh"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
           "effort": "high",
-          "description": "high"
+          "description": "high - deeper reasoning"
         },
         {
-          "effort": "medium",
-          "description": "medium"
-        },
-        {
-          "effort": "low",
-          "description": "low"
+          "effort": "max",
+          "description": "max - Kimi K3 official default, deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -289,9 +299,7 @@
         "image"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "max"
-      }
+      "extra_body": {}
     },
     {
       "slug": "deepseek-v4-pro-0813",
@@ -301,15 +309,15 @@
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "low"
+          "description": "low - lighter reasoning"
         },
         {
           "effort": "high",
-          "description": "high"
+          "description": "high - Bailian default; medium and xhigh also land here"
         },
         {
           "effort": "max",
-          "description": "max"
+          "description": "max - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -350,23 +358,15 @@
       "supported_reasoning_levels": [
         {
           "effort": "low",
-          "description": "low"
-        },
-        {
-          "effort": "medium",
-          "description": "medium"
+          "description": "low - lighter reasoning"
         },
         {
           "effort": "high",
-          "description": "high"
-        },
-        {
-          "effort": "xhigh",
-          "description": "xhigh"
+          "description": "high - Bailian default; medium and xhigh also land here"
         },
         {
           "effort": "max",
-          "description": "max"
+          "description": "max - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -403,15 +403,19 @@
       "slug": "qwen3.8-max-0902",
       "display_name": "Qwen3.8 Max 0902",
       "description": "DashScope OpenAI-compatible Qwen3.8 Max model, pinned snapshot 0902. 1M context, supports thinking and function calling.",
-      "default_reasoning_level": "xhigh",
+      "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
-          "effort": "xhigh",
-          "description": "xhigh - Qwen3.8 recommended reasoning effort"
+          "effort": "low",
+          "description": "low - lighter reasoning"
         },
         {
-          "effort": "high",
-          "description": "high"
+          "effort": "medium",
+          "description": "medium - deeper reasoning"
+        },
+        {
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
         }
       ],
       "shell_type": "unified_exec",
@@ -443,9 +447,7 @@
         "image"
       ],
       "supports_search_tool": false,
-      "extra_body": {
-        "reasoning_effort": "xhigh"
-      }
+      "extra_body": {}
     }
   ]
 }

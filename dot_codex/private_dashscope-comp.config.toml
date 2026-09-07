@@ -1,4 +1,4 @@
-model = "qwen3.8-27b"
+model = "qwen3.8-max-0902"
 model_provider = "dashscope"
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
 model_reasoning_effort = "xhigh"
@@ -24,23 +24,3 @@ request_max_retries = 99
 request_max_retry_delay_ms = 10000
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
 
-[projects."/Users/yuguorui/Code/openai/codex"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Code/xiaomi/aircond-auto"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Code/test"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Code/LollipopKit/flutter_server_box"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Code/bongocat"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Code/rfor"]
-trust_level = "trusted"
