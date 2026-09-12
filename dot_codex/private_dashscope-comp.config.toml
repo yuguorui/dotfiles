@@ -22,5 +22,4 @@ requires_openai_auth = false
 extra_body = { preserve_thinking = true }
 request_max_retries = 99
 request_max_retry_delay_ms = 10000
-model_catalog_json = "~/.codex/dashscope-completion-models.json"
 

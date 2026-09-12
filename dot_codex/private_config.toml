@@ -2,7 +2,6 @@ model_provider = "codex"
 model = "gpt-5.6-sol"
 review_model = "gpt-5.4"
 model_reasoning_effort = "high"
-windows_wsl_setup_acknowledged = true
 model_context_window = 1000000
 
 sandbox_mode = "workspace-write"
