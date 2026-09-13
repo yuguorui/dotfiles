@@ -1,4 +1,4 @@
-model = "deepseek-v4-flash-vision-exp"
+model = "deepseek-flash"
 model_provider = "deepseek-chat"
 model_catalog_json = "~/.codex/deepseek-chat-models.json"
 model_reasoning_effort = "max"
