@@ -41,7 +41,7 @@
       "context_window": 1000000,
       "max_context_window": 1000000,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 40,
+      "effective_context_window_percent": 20,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text",
@@ -202,9 +202,9 @@
       }
     },
     {
-      "slug": "deepseek-v4-pro",
-      "display_name": "DeepSeek V4 Pro",
-      "description": "DashScope-hosted DeepSeek V4 Pro, GA snapshot V4-Pro-0813 (joined Bailian 2026-08-21). 1M context, supports thinking and Codex tool use. Max output shares 384k with context.",
+      "slug": "deepseek-v4.1-flash",
+      "display_name": "DeepSeek V4.1 Flash",
+      "description": "DashScope-hosted DeepSeek V4.1 Flash GA snapshot V4.1-Flash. 1M context, supports image reading, thinking and Codex tool use. Max output shares 384k with context.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
@@ -440,7 +440,7 @@
       "context_window": 1000000,
       "max_context_window": 1000000,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 40,
+      "effective_context_window_percent": 20,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text",
