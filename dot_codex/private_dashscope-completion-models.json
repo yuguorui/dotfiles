@@ -3,7 +3,7 @@
     {
       "slug": "qwen3.8-max",
       "display_name": "Qwen3.8 Max",
-      "description": "DashScope OpenAI-compatible Qwen3.8 Max model. 1M context, supports thinking and function calling.",
+      "description": "DashScope OpenAI-compatible Qwen3.8 Max model. 262,144-token native context (extendable to 1M), supports thinking and function calling.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
@@ -38,10 +38,10 @@
       },
       "supports_parallel_tool_calls": true,
       "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
+      "context_window": 262144,
+      "max_context_window": 1010000,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 20,
+      "effective_context_window_percent": 95,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text",
@@ -403,7 +403,7 @@
     {
       "slug": "qwen3.8-max-0902",
       "display_name": "Qwen3.8 Max 0902",
-      "description": "DashScope OpenAI-compatible Qwen3.8 Max model, pinned snapshot 0902. 1M context, supports thinking and function calling.",
+      "description": "DashScope OpenAI-compatible Qwen3.8 Max model, pinned snapshot 0902. 262,144-token native context (extendable to 1M), supports thinking and function calling.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
@@ -438,10 +438,10 @@
       },
       "supports_parallel_tool_calls": true,
       "supports_image_detail_original": false,
-      "context_window": 1000000,
-      "max_context_window": 1000000,
+      "context_window": 262144,
+      "max_context_window": 1010000,
       "auto_compact_token_limit": null,
-      "effective_context_window_percent": 20,
+      "effective_context_window_percent": 95,
       "experimental_supported_tools": [],
       "input_modalities": [
         "text",
