@@ -452,6 +452,7 @@
     },
     {
       "slug": "glm-5.3",
+      "tool_mode": "code_mode",
       "display_name": "GLM-5.3",
       "description": "DashScope-hosted GLM-5.3 flagship model. 1M context, thinking-only, supports reasoning effort and Codex tool use.",
       "default_reasoning_level": "max",
