@@ -12,6 +12,7 @@ memories = true
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
 status_line_use_colors = true
 theme = "gruvbox-light"
+mouse_scroll_speed = 3.0
 
 [model_providers.dashscope]
 name = "DashScope"

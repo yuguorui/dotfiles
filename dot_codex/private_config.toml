@@ -30,6 +30,7 @@ status_line = ["model-with-reasoning", "current-dir", "context-used", "context-w
 status_line_use_colors = true
 session_picker_view = "comfortable"
 pet = "bongo-cat"
+mouse_scroll_speed = 3.0
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4

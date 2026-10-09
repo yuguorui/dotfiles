@@ -47,3 +47,6 @@ startup_timeout_sec = 60
 [features]
 memories = true
 
+[tui]
+mouse_scroll_speed = 3.0
+

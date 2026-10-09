@@ -10,6 +10,7 @@ memories = true
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
 status_line_use_colors = true
+mouse_scroll_speed = 3.0
 
 [model_providers.deepseek-chat]
 name = "DeepSeek Chat"
