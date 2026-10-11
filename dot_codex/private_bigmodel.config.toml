@@ -2,7 +2,7 @@
 # Usage: export ZAI_API_KEY="<your API key>" and copy this file over config.toml,
 # or reference it as the active config when launching Codex.
 model_provider = "ZAI"
-model = "glm-5.3"
+model = "glm-5.3-flashx"
 model_reasoning_effort = "max"
 service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 model_catalog_json = "~/.codex/bigmodel-models.json"
