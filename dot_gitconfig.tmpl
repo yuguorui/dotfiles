@@ -6,6 +6,7 @@
         bl = blame
 [diff]
         algorithm = histogram
+        external = "sh -c 'if command -v difft >/dev/null 2>&1; then difft --display=inline --background=light \"$@\"; exit $?; fi; diff -u --label \"a/$1\" --label \"b/$1\" \"$2\" \"$5\"; status=$?; if [ \"$status\" -eq 1 ]; then exit 0; fi; exit \"$status\"' --"
 
 [branch]
         sort = committerdate
