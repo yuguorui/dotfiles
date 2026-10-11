@@ -2,9 +2,16 @@
 
 ## Install
 
-支持 macOS 和 Linux（Linux 使用 Homebrew 官方支持的 glibc 发行版）。
+Codex++ 官方 release 支持 Apple Silicon macOS 和 Linux x64；Linux 使用 Homebrew 官方支持的 glibc 发行版。
 
 ```shell
+set -eu
+
+case "$(uname -s)/$(uname -m)" in
+    Darwin/arm64|Linux/x86_64|Linux/amd64) ;;
+    *) echo "Codex++ release supports Apple Silicon macOS and Linux x64" >&2; exit 1 ;;
+esac
+
 # Linux needs these packages before bootstrapping Homebrew.
 if command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update
@@ -53,9 +60,11 @@ brew install curl git node neovim chezmoi
 export PATH="$HOME/.local/bin:$PATH"
 if ! command -v codex++ >/dev/null 2>&1; then
     codex_installer=$(mktemp)
+    trap 'rm -f "$codex_installer"' EXIT
     curl -fsSL https://github.com/yuguorui/codex-plus/releases/latest/download/install-fork.sh -o "$codex_installer"
     CODEX_NON_INTERACTIVE=true sh "$codex_installer"
     rm -f "$codex_installer"
+    trap - EXIT
 fi
 
 chezmoi init --apply https://github.com/yuguorui/dotfiles.git
