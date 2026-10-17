@@ -64,6 +64,15 @@ bearer_token_env_var = "IQS_API_KEY"
 url = "https://internal-support.sec-gateway-higress.aliyuncs.com/iqs-mcp/mcp-servers/iqs-mcp-server-readpage"
 bearer_token_env_var = "IQS_API_KEY"
 
+# DeepSeek 官方 Search/Fetch API（https://api-docs.deepseek.com/zh-cn/guides/search）
+# 原生 JSON API 不是 MCP；本地 stdio 适配器暴露 search / fetch 工具。
+# Codex 会清理 stdio MCP 子进程环境，因此显式转发 DEEPSEEK_API_KEY。
+[mcp_servers.deepseek-search]
+env_vars = ["DEEPSEEK_API_KEY"]
+command = "python3"
+args = ["/Users/yuguorui/.codex/tools/deepseek-search-mcp.py"]
+startup_timeout_sec = 60
+
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"

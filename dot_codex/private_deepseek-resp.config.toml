@@ -1,0 +1,27 @@
+model = "deepseek-flash"
+model_provider = "deepseek-resp"
+model_catalog_json = "~/.codex/deepseek-resp-models.json"
+model_reasoning_effort = "max"
+service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
+web_search = "disabled"    # DeepSeek Responses API 忽略内置 web_search；搜索统一走全局 deepseek-search MCP
+
+[features]
+memories = true
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
+status_line_use_colors = true
+mouse_scroll_speed = 3.0
+
+[model_providers.deepseek-resp]
+name = "DeepSeek Responses"
+base_url = "https://api.deepseek.com"
+env_base_url = "DEEPSEEK_RESP_BASE_URL"
+env_key = "DEEPSEEK_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+"gpt-5.6-sol" = 4
+"gpt-6.1-sol" = 2
