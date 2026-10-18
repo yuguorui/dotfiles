@@ -2,6 +2,7 @@ model = "k3-256k"
 model_provider = "kimi-anthropic"
 model_catalog_json = "~/.codex/kimi-anthropic-models.json"
 model_reasoning_effort = "max"
+show_raw_agent_reasoning = true
 service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 
 [features]

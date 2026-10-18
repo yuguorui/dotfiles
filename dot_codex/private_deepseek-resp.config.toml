@@ -2,6 +2,7 @@ model = "deepseek-flash"
 model_provider = "deepseek-resp"
 model_catalog_json = "~/.codex/deepseek-resp-models.json"
 model_reasoning_effort = "max"
+show_raw_agent_reasoning = true
 service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 web_search = "disabled"    # DeepSeek Responses API 忽略内置 web_search；搜索统一走全局 deepseek-search MCP
 
