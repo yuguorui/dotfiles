@@ -202,7 +202,7 @@
       }
     },
     {
-      "slug": "deepseek-v4.1-flash",
+      "slug": "deepseek-v4.1-flash-1017",
       "display_name": "DeepSeek V4.1 Flash",
       "description": "DashScope-hosted DeepSeek V4.1 Flash GA snapshot V4.1-Flash. 1M context, supports image reading, thinking and Codex tool use. Max output shares 384k with context.",
       "default_reasoning_level": "high",
