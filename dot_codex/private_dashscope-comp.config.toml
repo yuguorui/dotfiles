@@ -1,7 +1,7 @@
-model = "qwen3.8-max-0902"
+model = "deepseek-v4.1-flash"
 model_provider = "dashscope"
 model_catalog_json = "~/.codex/dashscope-completion-models.json"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "max"
 show_raw_agent_reasoning = true
 service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
 approvals_reviewer = "auto_review"
@@ -15,6 +15,16 @@ status_line_use_colors = true
 theme = "gruvbox-light"
 mouse_scroll_speed = 3.0
 
+[tui.presets.1]
+input = """
+为了人类阅读体验，尽量把跨越屏幕长度的长句拆分为 “-” （unordered item） 分割的，表递进关系的短句序列。
+需要保证结论性的句子锁进级别较低，然后跟上补充性的锁进级别更多的句子。"""
+label = ""
+
+[tui.presets.2]
+input = '不要用→，而是尽量使用更自然的符号，这个不是人能打出的字符，如"/"，"->" 等'
+label = ""
+
 [model_providers.dashscope]
 name = "DashScope"
 env_base_url = "DASHSCOPE_BASE_URL"
@@ -24,4 +34,3 @@ requires_openai_auth = false
 extra_body = { preserve_thinking = true }
 request_max_retries = 99
 request_max_retry_delay_ms = 10000
-
