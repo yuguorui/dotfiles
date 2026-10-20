@@ -21,9 +21,3 @@ wire_api = "anthropic"
 requires_openai_auth = false
 request_max_retries = 99
 request_max_retry_delay_ms = 60000
-
-[projects."/Users/yuguorui/Code/RSSBabel"]
-trust_level = "trusted"
-
-[projects."/Users/yuguorui/Downloads"]
-trust_level = "trusted"

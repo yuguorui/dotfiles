@@ -1,0 +1,11 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* Preserve live [projects.*]; managed base lives in .chezmoitemplates. */ -}}
+{{- $base := trimAll "\n" (includeTemplate "codex-bigmodel-base.toml" .) -}}
+{{- $projects := includeTemplate "codex-projects" .chezmoi.stdin -}}
+{{- if $projects -}}
+{{ $base }}
+
+{{ $projects }}
+{{- else -}}
+{{ $base }}
+{{- end }}

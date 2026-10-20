@@ -1,0 +1,14 @@
+{{- $lines := splitList "\n" . -}}
+{{- $inProjects := false -}}
+{{- $projects := list -}}
+{{- range $line := $lines -}}
+{{- if hasPrefix "[projects." $line -}}
+{{- $inProjects = true -}}
+{{- else if and $inProjects (hasPrefix "[" $line) -}}
+{{- $inProjects = false -}}
+{{- end -}}
+{{- if $inProjects -}}
+{{- $projects = append $projects $line -}}
+{{- end -}}
+{{- end -}}
+{{- trimAll "\n" (join "\n" $projects) -}}
