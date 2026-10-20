@@ -71,7 +71,7 @@ bearer_token_env_var = "IQS_API_KEY"
 [mcp_servers.deepseek-search]
 env_vars = ["DEEPSEEK_API_KEY"]
 command = "python3"
-args = ["/Users/yuguorui/.codex/tools/deepseek-search-mcp.py"]
+args = ["{{ .chezmoi.homeDir }}/.codex/tools/deepseek-search-mcp.py"]
 startup_timeout_sec = 60
 
 [mcp_servers.node_repl]
