@@ -56,7 +56,8 @@ args = ["@browsermcp/mcp@latest"]
 
 [mcp_servers.exa]
 url = "https://mcp.exa.ai/mcp"
-
+{{ if ne .chezmoi.username "yuguorui" }}
+# 内网 IQS 网关（internal-support.sec-gateway-higress.aliyuncs.com）的 search / readpage MCP（仅工作账号启用）。
 [mcp_servers.websearch]
 url = "https://internal-support.sec-gateway-higress.aliyuncs.com/iqs-mcp/mcp-servers/iqs-mcp-server-search"
 bearer_token_env_var = "IQS_API_KEY"
@@ -64,7 +65,7 @@ bearer_token_env_var = "IQS_API_KEY"
 [mcp_servers.webfetch]
 url = "https://internal-support.sec-gateway-higress.aliyuncs.com/iqs-mcp/mcp-servers/iqs-mcp-server-readpage"
 bearer_token_env_var = "IQS_API_KEY"
-
+{{ end }}
 # DeepSeek 官方 Search/Fetch API（https://api-docs.deepseek.com/zh-cn/guides/search）
 # 原生 JSON API 不是 MCP；本地 stdio 适配器暴露 search / fetch 工具。
 # Codex 会清理 stdio MCP 子进程环境，因此显式转发 DEEPSEEK_API_KEY。
