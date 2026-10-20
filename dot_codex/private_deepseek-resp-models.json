@@ -19,7 +19,7 @@
           "description": "max - for complex agent tasks"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 1,
@@ -71,7 +71,7 @@
           "description": "max - for complex agent tasks"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 2,

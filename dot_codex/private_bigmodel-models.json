@@ -19,7 +19,7 @@
           "description": "Deep reasoning"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 0,
@@ -30,7 +30,7 @@
       "apply_patch_tool_type": "claude_code",
       "truncation_policy": {
         "mode": "bytes",
-        "limit": 10000
+        "limit": 40000
       },
       "context_window": 1048576,
       "max_context_window": 1048576,
@@ -60,7 +60,7 @@
           "description": "Deep reasoning"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 2,
@@ -71,7 +71,7 @@
       "apply_patch_tool_type": "claude_code",
       "truncation_policy": {
         "mode": "bytes",
-        "limit": 10000
+        "limit": 40000
       },
       "context_window": 1048576,
       "max_context_window": 1048576,
@@ -102,7 +102,7 @@
           "description": "Deep reasoning"
         }
       ],
-      "shell_type": "shell_command",
+      "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
       "priority": 3,
@@ -113,7 +113,7 @@
       "apply_patch_tool_type": "claude_code",
       "truncation_policy": {
         "mode": "bytes",
-        "limit": 10000
+        "limit": 40000
       },
       "context_window": 1048576,
       "max_context_window": 1048576,
