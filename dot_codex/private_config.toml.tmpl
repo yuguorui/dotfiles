@@ -1,11 +1,12 @@
-model_provider = "codex"
-model = "gpt-5.6-sol"
-review_model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_provider = "deepseek-resp"
+model = "deepseek-flash"
+model_catalog_json = "~/.codex/deepseek-resp-models.json"
+model_reasoning_effort = "max"
 show_raw_agent_reasoning = true
+web_search = "disabled"    # DeepSeek Responses API 忽略内置 web_search；搜索统一走全局 deepseek-search MCP
 
 sandbox_mode = "workspace-write"
-service_tier = "fast"
+service_tier = "default"    # 第三方模型不支持 service tier：显式 default，避免继承 fast 的告警
 approvals_reviewer = "auto_review"
 
 notify = ["/Users/yuguorui/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
@@ -16,15 +17,13 @@ max_threads = 1000000
 [sandbox_workspace_write]
 network_access = true
 
-[model_providers.codex]
-name = "codex"
-base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/codex/v1"
-env_key = "DASHSCOPE_API_KEY"
+[model_providers.deepseek-resp]
+name = "DeepSeek Responses"
+base_url = "https://api.deepseek.com"
+env_base_url = "DEEPSEEK_RESP_BASE_URL"
+env_key = "DEEPSEEK_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
-request_max_retries = 99
-request_max_retry_delay_ms = 60000
-supports_websockets = false
 
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "fast-mode"]
@@ -32,10 +31,6 @@ status_line_use_colors = true
 session_picker_view = "comfortable"
 pet = "bongo-cat"
 mouse_scroll_speed = 3.0
-
-[tui.model_availability_nux]
-"gpt-5.5" = 4
-"gpt-5.6-sol" = 4
 
 [desktop]
 followUpQueueMode = "queue"
