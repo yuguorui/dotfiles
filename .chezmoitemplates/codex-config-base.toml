@@ -30,6 +30,16 @@ session_picker_view = "comfortable"
 pet = "bongo-cat"
 mouse_scroll_speed = 3.0
 
+[tui.presets.1]
+input = """
+为了人类阅读体验，尽量把跨越屏幕长度的长句拆分为 “-” （unordered item） 分割的，表递进关系的短句序列。
+需要保证结论性的句子锁进级别较低，然后跟上补充性的锁进级别更多的句子。"""
+label = ""
+
+[tui.presets.2]
+input = '不要用→，而是尽量使用更自然的符号，这个不是人能打出的字符，如"/"，"->" 等'
+label = ""
+
 [desktop]
 followUpQueueMode = "queue"
 dock-icon-preference = "app-default"
