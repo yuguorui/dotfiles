@@ -1,0 +1,59 @@
+# DashScope (Aliyun Bailian) OpenAI-compatible Responses API profile.
+# Official doc: https://docs.bailian.console.aliyun.com/zh/model-studio/qwen-api-via-openai-responses
+#
+# Request URL is {base_url}/responses, where base_url normally ends in /compatible-mode/v1.
+# The old /api/v2/apps/protocols/compatible-mode/v1/responses path is no longer maintained.
+#
+# Responses-specific behavior:
+# - Thinking strength is controlled by reasoning.effort (none/minimal/low/medium/high/xhigh/max).
+#   Bailian maps each model's unsupported tiers; the catalog below lists the documented native tiers.
+#   enable_thinking is legacy and has lower priority than reasoning.effort, so this profile does not
+#   set the chat-only preserve_thinking extra_body.
+# - store and previous_response_id are supported; background is not (synchronous calls only).
+# - Max input context is about 80% of the model window (20% is reserved for tools/reasoning), so
+#   dashscope-resp-models.json uses effective_context_window_percent = 80.
+# - Documented function tools use the flat Responses shape ({type="function", name=...}).
+#   Code Mode instead sends an OpenAI Responses `custom` tool; a live probe on 2026-10-21 showed this
+#   gateway accepts it and returns custom_tool_call. If a rollout rejects the custom tool, change the
+#   catalog entries to "tool_mode": "direct" (normal function tools) and disable code_mode below.
+model = "deepseek-v4.1-flash"
+model_provider = "dashscope-resp"
+model_catalog_json = "~/.codex/dashscope-resp-models.json"
+model_reasoning_effort = "max"
+show_raw_agent_reasoning = true
+service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，第三方模型不支持 tier 也不再警告
+approvals_reviewer = "auto_review"
+
+[features]
+code_mode = true
+code_mode_host = true
+memories = true
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "thread-id"]
+status_line_use_colors = true
+theme = "gruvbox-light"
+mouse_scroll_speed = 3.0
+
+[tui.presets.1]
+input = """
+为了人类阅读体验，尽量把跨越屏幕长度的长句拆分为 “-” （unordered item） 分割的，表递进关系的短句序列。
+需要保证结论性的句子锁进级别较低，然后跟上补充性的锁进级别更多的句子。"""
+label = ""
+
+[tui.presets.2]
+input = '不要用→，而是尽量使用更自然的符号，这个不是人能打出的字符，如"/"，"->" 等'
+label = ""
+
+[model_providers.dashscope-resp]
+name = "DashScope Responses"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+env_base_url = "DASHSCOPE_BASE_URL"
+env_key = "DASHSCOPE_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+request_max_retries = 99
+request_max_retry_delay_ms = 10000
+# DASHSCOPE_BASE_URL currently points at the internal gateway; POST /responses was verified there.
+# For direct Bailian access, set DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+# and put the public API key in DASHSCOPE_API_KEY (or change env_key to DASHSCOPE_DIRECT_API_KEY).
