@@ -2,6 +2,7 @@
   "models": [
     {
       "slug": "glm-5.3",
+      "tool_mode": "code_mode",
       "display_name": "glm-5.3",
       "description": "Z.ai's latest flagship model",
       "default_reasoning_level": "max",
@@ -43,6 +44,7 @@
     },
     {
       "slug": "glm-5.3-flash",
+      "tool_mode": "code_mode",
       "display_name": "glm-5.3-flash",
       "description": "Z.ai first natively multimodal GLM-5 model (320B total / 18B active), 1M context, strong agentic and visual coding.",
       "default_reasoning_level": "max",
@@ -85,6 +87,7 @@
     },
     {
       "slug": "glm-5.3-flashx",
+      "tool_mode": "code_mode",
       "display_name": "glm-5.3-flashx",
       "description": "Z.ai GLM-5.3 Flash accelerated variant: native multimodal GLM-5 with about 200 tokens/s serving, 1M context, strong agentic and visual coding.",
       "default_reasoning_level": "max",

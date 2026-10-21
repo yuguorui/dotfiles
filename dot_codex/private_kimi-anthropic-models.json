@@ -2,6 +2,7 @@
   "models": [
     {
       "slug": "kimi-k3",
+      "tool_mode": "code_mode",
       "display_name": "Kimi K3",
       "description": "Kimi K3 via Anthropic-compatible API. Long-context coding model with tool calling support.",
       "default_reasoning_level": "high",
@@ -43,6 +44,7 @@
     },
     {
       "slug": "k3",
+      "tool_mode": "code_mode",
       "display_name": "K3",
       "description": "Kimi For Coding flagship (coding plan ID). 1M context with eligible membership, thinking + multimodal. Effort: low/high/max.",
       "default_reasoning_level": "high",
@@ -92,6 +94,7 @@
     },
     {
       "slug": "k3-256k",
+      "tool_mode": "code_mode",
       "display_name": "K3-256K",
       "description": "Kimi For Coding K3 with 256K context. Same quality as k3 within 256K, ~half the cost, no video input.",
       "default_reasoning_level": "high",
@@ -141,6 +144,7 @@
     },
     {
       "slug": "kimi-for-coding",
+      "tool_mode": "code_mode",
       "display_name": "K2.7 Code",
       "description": "Kimi For Coding K2.7 Code (coding plan ID). 256K context, coding-focused with thinking mode and image input.",
       "default_reasoning_level": "high",
@@ -190,6 +194,7 @@
     },
     {
       "slug": "kimi-for-coding-highspeed",
+      "tool_mode": "code_mode",
       "display_name": "K2.7 Code HighSpeed",
       "description": "High-speed variant of K2.7 Code, 5-6x faster output. 256K context, same capabilities as kimi-for-coding.",
       "default_reasoning_level": "high",

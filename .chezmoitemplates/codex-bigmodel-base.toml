@@ -46,6 +46,8 @@ args = ["-y", "mcp-remote@0.8.2", "https://open.bigmodel.cn/api/mcp/zread/mcp", 
 startup_timeout_sec = 60
 
 [features]
+code_mode = true
+code_mode_host = true
 memories = true
 
 [tui]

@@ -46,6 +46,8 @@ dock-icon-preference = "app-default"
 conversationDetailMode = "STEPS_COMMANDS"
 
 [features]
+code_mode = true
+code_mode_host = true
 apps = false
 js_repl = false
 memories = true
