@@ -2,7 +2,7 @@
   "models": [
     {
       "slug": "deepseek-flash",
-      "tool_mode": "direct",
+      "tool_mode": "code_mode",
       "display_name": "DeepSeek V4.1 Flash",
       "description": "DeepSeek V4.1 Flash via Responses API. 1M context, 384K max output, vision, thinking (default) and function calling.",
       "default_reasoning_level": "high",
@@ -55,7 +55,7 @@
     },
     {
       "slug": "deepseek-v4-pro",
-      "tool_mode": "direct",
+      "tool_mode": "code_mode",
       "display_name": "DeepSeek V4 Pro",
       "description": "DeepSeek V4 Pro (0813) via Responses API. Retiring: from 2026-09-14 requests route to V4.1 Flash at Flash pricing.",
       "default_reasoning_level": "high",

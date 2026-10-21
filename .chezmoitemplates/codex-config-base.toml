@@ -22,6 +22,9 @@ env_base_url = "DEEPSEEK_RESP_BASE_URL"
 env_key = "DEEPSEEK_API_KEY"
 wire_api = "responses"
 requires_openai_auth = false
+# DeepSeek only accepts `custom` tools named apply_patch. Code Mode's `exec`
+# travels as a function tool (see codex-tools function_exec transport).
+capabilities = { supports_custom_exec_tool = false }
 
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state", "fast-mode"]
