@@ -46,6 +46,7 @@ input = '不要用→，而是尽量使用更自然的符号，这个不是人�
 label = ""
 
 [model_providers.dashscope-resp]
+capabilities = { supports_native_tool_search = false }
 name = "DashScope Responses"
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 env_base_url = "DASHSCOPE_BASE_URL"

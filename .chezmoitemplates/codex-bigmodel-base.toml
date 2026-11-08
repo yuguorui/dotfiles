@@ -9,6 +9,7 @@ service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，�
 model_catalog_json = "~/.codex/bigmodel-models.json"
 
 [model_providers.ZAI]
+capabilities = { supports_native_tool_search = false }
 name = "ZAI"
 base_url = "https://open.bigmodel.cn/api/v1"
 env_key = "ZAI_API_KEY"

@@ -13,6 +13,7 @@ code_mode_host = true
 memories = true
 
 [model_providers.deepseek-chat]
+capabilities = { supports_native_tool_search = false }
 name = "DeepSeek Chat"
 base_url = "https://api.deepseek.com"
 env_base_url = "DEEPSEEK_CHAT_BASE_URL"

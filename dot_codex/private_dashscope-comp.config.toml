@@ -28,6 +28,7 @@ input = '不要用→，而是尽量使用更自然的符号，这个不是人�
 label = ""
 
 [model_providers.dashscope]
+capabilities = { supports_native_tool_search = false }
 name = "DashScope"
 env_base_url = "DASHSCOPE_BASE_URL"
 env_key = "DASHSCOPE_API_KEY"

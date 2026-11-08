@@ -48,7 +48,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "qwen3.8-flash",
@@ -98,7 +98,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "qwen3.8-27b",
@@ -148,7 +148,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "qwen3.8-2.4t-a95b",
@@ -197,7 +197,7 @@
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "deepseek-v4.1-flash-1017",
@@ -248,7 +248,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "deepseek-v4.1-flash",
@@ -299,7 +299,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "kimi-k3",
@@ -350,7 +350,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "deepseek-v4-pro-0813",
@@ -400,7 +400,7 @@
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "deepseek-v4-flash-0731",
@@ -450,7 +450,7 @@
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "qwen3.8-max-0902",
@@ -500,7 +500,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     },
     {
       "slug": "glm-5.3",
@@ -550,7 +550,7 @@
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false
+      "supports_search_tool": true
     }
   ]
 }

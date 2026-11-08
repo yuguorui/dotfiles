@@ -50,7 +50,7 @@
         "text",
         "image"
       ],
-      "supports_search_tool": false,
+      "supports_search_tool": true,
       "extra_body": {}
     },
     {
@@ -102,7 +102,7 @@
       "input_modalities": [
         "text"
       ],
-      "supports_search_tool": false,
+      "supports_search_tool": true,
       "extra_body": {}
     }
   ]

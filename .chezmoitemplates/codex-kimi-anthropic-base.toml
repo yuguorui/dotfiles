@@ -16,6 +16,7 @@ status_line_use_colors = true
 mouse_scroll_speed = 3.0
 
 [model_providers.kimi-anthropic]
+capabilities = { supports_native_tool_search = false }
 name = "kimi-anthropic"
 env_base_url = "KIMI_ANTHROPIC_BASE_URL"
 env_key = "KIMI_API_KEY"
