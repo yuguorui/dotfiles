@@ -302,6 +302,61 @@
       "supports_search_tool": true
     },
     {
+      "slug": "kimi-k3.1-pro",
+      "tool_mode": "code_mode",
+      "display_name": "Kimi K3.1 Pro",
+      "description": "DashScope-hosted Moonshot Kimi K3.1 Pro (model ID kimi-k3.1-pro). 1M context, text/image input, thinking and function calling. Effort: low/medium/high/max; max is the provider default. thinking_budget is rejected by this model.",
+      "default_reasoning_level": "max",
+      "supported_reasoning_levels": [
+        {
+          "effort": "low",
+          "description": "low - lighter reasoning"
+        },
+        {
+          "effort": "medium",
+          "description": "medium - balanced reasoning"
+        },
+        {
+          "effort": "high",
+          "description": "high - deeper reasoning"
+        },
+        {
+          "effort": "max",
+          "description": "max - provider default, deepest reasoning"
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 5,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "model_messages": null,
+      "supports_reasoning_summaries": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": false,
+      "default_verbosity": null,
+      "apply_patch_tool_type": "claude_code",
+      "truncation_policy": {
+        "mode": "bytes",
+        "limit": 40000
+      },
+      "supports_parallel_tool_calls": false,
+      "supports_image_detail_original": false,
+      "context_window": 1048576,
+      "max_context_window": 1048576,
+      "auto_compact_token_limit": null,
+      "effective_context_window_percent": 80,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supports_search_tool": true
+    },
+    {
       "slug": "kimi-k3",
       "tool_mode": "code_mode",
       "display_name": "Kimi K3",

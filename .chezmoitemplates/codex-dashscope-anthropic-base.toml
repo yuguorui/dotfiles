@@ -1,0 +1,28 @@
+model = "kimi-k3.1-pro"
+model_provider = "dashscope-anthropic"
+model_catalog_json = "~/.codex/dashscope-anthropic-models.json"
+model_reasoning_effort = "max"
+show_raw_agent_reasoning = true
+service_tier = "default"
+
+[features]
+code_mode = true
+code_mode_host = true
+memories = true
+
+[tui]
+status_line = ["model-with-reasoning", "current-dir", "context-used", "context-window-size", "run-state"]
+status_line_use_colors = true
+mouse_scroll_speed = 3.0
+
+[model_providers.dashscope-anthropic]
+capabilities = { supports_native_tool_search = false }
+name = "dashscope-anthropic"
+# Codex's Anthropic wire appends /messages, so this URL must end in /v1.
+base_url = "https://internal-support.sec-gateway-higress.aliyuncs.com/anthropic/v1"
+env_key = "DASHSCOPE_API_KEY"
+env_key_auth = "bearer"
+wire_api = "anthropic"
+requires_openai_auth = false
+request_max_retries = 99
+request_max_retry_delay_ms = 60000
