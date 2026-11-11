@@ -1,0 +1,102 @@
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+- id: ui-settings-general
+  name: "@deepseek-ai/dsh-client-ui-settings-general"
+  config:
+    welcomeNoticeVersion: 2026-09-28.1
+
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      dashscope:
+        displayName: DashScope
+        apiKeyEnv: DASHSCOPE_API_KEY
+        api: openai-completions
+        baseURL: !!js process.env.DASHSCOPE_BASE_URL
+        defaultContextWindow: 1000000
+        defaultMaxTokens: 131072
+        compat:
+          supportsDeveloperRole: false
+          maxTokensField: max_tokens
+          supportsReasoningEffort: true
+          supportsUsageInStreaming: true
+        models:
+          # Qwen3.8: enable_thinking + reasoning_effort. Codex tiers are low/medium/xhigh.
+          - id: qwen3.8-max
+            name: Qwen3.8 Max
+            contextWindow: 249037
+            input: [ text, image ]
+            reasoningEfforts: { low: low, medium: medium, xhigh: xhigh, max: xhigh }
+            compat: { thinkingFormat: qwen }
+          - id: qwen3.8-max-0902
+            name: Qwen3.8 Max 0902
+            contextWindow: 249037
+            input: [ text, image ]
+            reasoningEfforts: { low: low, medium: medium, xhigh: xhigh, max: xhigh }
+            compat: { thinkingFormat: qwen }
+          - id: qwen3.8-flash
+            name: Qwen3.8 Flash
+            contextWindow: 400000
+            input: [ text, image ]
+            reasoningEfforts: { low: low, medium: medium, xhigh: xhigh, max: xhigh }
+            compat: { thinkingFormat: qwen }
+          - id: qwen3.8-27b
+            name: Qwen3.8 27B
+            contextWindow: 400000
+            input: [ text, image ]
+            reasoningEfforts: { low: low, medium: medium, xhigh: xhigh, max: xhigh }
+            compat: { thinkingFormat: qwen }
+          - id: qwen3.8-2.4t-a95b
+            name: Qwen3.8 2.4T A95B
+            contextWindow: 400000
+            input: [ text ]
+            reasoningEfforts: { low: low, medium: medium, xhigh: xhigh, max: xhigh }
+            compat: { thinkingFormat: qwen }
+          # DeepSeek V4 family: top-level reasoning_effort (low/high/max).
+          - id: deepseek-v4.1-flash-1017
+            name: DeepSeek V4.1 Flash
+            contextWindow: 950000
+            input: [ text, image ]
+            reasoningEfforts: { low: low, high: high, max: max }
+          - id: deepseek-v4.1-flash
+            name: DeepSeek V4.1 Flash (alias)
+            contextWindow: 950000
+            input: [ text, image ]
+            reasoningEfforts: { low: low, high: high, max: max }
+          - id: deepseek-v4-pro-0813
+            name: DeepSeek V4 Pro 0813
+            contextWindow: 950000
+            input: [ text ]
+            reasoningEfforts: { low: low, high: high, max: max }
+          - id: deepseek-v4-flash-0731
+            name: DeepSeek V4 Flash 0731
+            contextWindow: 900000
+            input: [ text ]
+            reasoningEfforts: { low: low, high: high, max: max }
+          # Kimi K3 family: reasoning_effort, thinking-only.
+          - id: kimi-k3.1-pro
+            name: Kimi K3.1 Pro
+            contextWindow: 419430
+            input: [ text, image ]
+            reasoningEfforts: { low: low, medium: medium, high: high, max: max }
+          - id: kimi-k3
+            name: Kimi K3
+            contextWindow: 400000
+            input: [ text, image ]
+            reasoningEfforts: { low: low, high: high, max: max }
+          # GLM-5.3: enable_thinking + reasoning_effort.
+          - id: glm-5.3
+            name: GLM-5.3
+            contextWindow: 950000
+            input: [ text ]
+            reasoningEfforts: { low: low, high: high, max: max }
+            compat: { thinkingFormat: qwen }
+
+- id: agent-default-model
+  name: "@deepseek-ai/dsh-agent-default-model"
+  config:
+    provider: dashscope
+    model: deepseek-v4.1-flash-1017
+    reasoningEffort: max
