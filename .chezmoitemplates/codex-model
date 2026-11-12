@@ -1,0 +1,14 @@
+{{- $model := "" -}}
+{{- $topLevel := true -}}
+{{- range $line := splitList "\n" . -}}
+{{- if hasPrefix "[" $line -}}
+{{- $topLevel = false -}}
+{{- end -}}
+{{- if and $topLevel (not $model) (regexMatch "^[ \t]*model[ \t]*=" $line) -}}
+{{- $model = $line -}}
+{{- end -}}
+{{- end -}}
+{{- if not $model -}}
+{{- $model = `model = "deepseek-flash"` -}}
+{{- end -}}
+{{- $model -}}

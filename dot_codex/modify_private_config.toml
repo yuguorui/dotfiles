@@ -1,5 +1,5 @@
 {{- /* chezmoi:modify-template */ -}}
-{{- /* Preserve live [projects.*]; managed base lives in .chezmoitemplates. */ -}}
+{{- /* Preserve live model and [projects.*]; managed base lives in .chezmoitemplates. */ -}}
 {{- $base := trimAll "\n" (includeTemplate "codex-config-base.toml" .) -}}
 {{- $projects := includeTemplate "codex-projects" .chezmoi.stdin -}}
 {{- if $projects -}}
