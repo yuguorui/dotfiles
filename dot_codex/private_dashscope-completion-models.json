@@ -154,10 +154,10 @@
       "extra_body": {}
     },
     {
-      "slug": "qwen3.8-2.4t-a95b",
+      "slug": "qwen4-max-preview",
       "tool_mode": "code_mode",
-      "display_name": "Qwen3.8 2.4T A95B",
-      "description": "DashScope Qwen3.8-2.4T-A95B text-only thinking model. 1M context, 128K max output, supports reasoning, function calling, and Codex tool use.",
+      "display_name": "Qwen4 Max Preview",
+      "description": "DashScope Qwen4 Max Preview multimodal model. 1M context, 128K max output, supports thinking and function calling.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
@@ -198,12 +198,10 @@
       "effective_context_window_percent": 40,
       "experimental_supported_tools": [],
       "input_modalities": [
-        "text"
+        "text",
+        "image"
       ],
-      "supports_search_tool": true,
-      "extra_body": {
-        "enable_thinking": true
-      }
+      "supports_search_tool": true
     },
     {
       "slug": "deepseek-v4.1-flash-1017",
