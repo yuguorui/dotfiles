@@ -154,10 +154,10 @@
       "extra_body": {}
     },
     {
-      "slug": "qwen4-max-preview",
+      "slug": "qwen4-max",
       "tool_mode": "code_mode",
-      "display_name": "Qwen4 Max Preview",
-      "description": "DashScope Qwen4 Max Preview multimodal model. 1M context, 128K max output, supports thinking and function calling.",
+      "display_name": "Qwen4 Max",
+      "description": "DashScope OpenAI-compatible Qwen4 Max flagship multimodal model. 1M context, 262,144-token thinking+answer budget (131,072 non-thinking), supports native vision/video input, thinking, function calling, and structured output.",
       "default_reasoning_level": "high",
       "supported_reasoning_levels": [
         {
@@ -165,8 +165,8 @@
           "description": "low - lighter reasoning"
         },
         {
-          "effort": "medium",
-          "description": "medium - deeper reasoning"
+          "effort": "high",
+          "description": "high - deeper reasoning"
         },
         {
           "effort": "xhigh",
@@ -176,7 +176,7 @@
       "shell_type": "unified_exec",
       "visibility": "list",
       "supported_in_api": true,
-      "priority": 5,
+      "priority": 1,
       "additional_speed_tiers": [],
       "service_tiers": [],
       "availability_nux": null,
@@ -201,7 +201,8 @@
         "text",
         "image"
       ],
-      "supports_search_tool": true
+      "supports_search_tool": true,
+      "extra_body": {}
     },
     {
       "slug": "deepseek-v4.1-flash-1017",

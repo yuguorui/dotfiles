@@ -1,6 +1,57 @@
 {
   "models": [
     {
+      "slug": "qwen4-max",
+      "tool_mode": "code_mode",
+      "display_name": "Qwen4 Max",
+      "description": "Qwen4 Max via DashScope Anthropic-compatible Messages API. 1M context, 262,144-token thinking+answer budget, native vision/video input, thinking and function calling; native efforts low/high/xhigh, default high.",
+      "default_reasoning_level": "high",
+      "supported_reasoning_levels": [
+        {
+          "effort": "low",
+          "description": "low - lighter reasoning"
+        },
+        {
+          "effort": "high",
+          "description": "high - deeper reasoning"
+        },
+        {
+          "effort": "xhigh",
+          "description": "xhigh - deepest reasoning"
+        }
+      ],
+      "shell_type": "unified_exec",
+      "visibility": "list",
+      "supported_in_api": true,
+      "priority": 1,
+      "additional_speed_tiers": [],
+      "service_tiers": [],
+      "availability_nux": null,
+      "upgrade": null,
+      "supports_reasoning_summaries": false,
+      "default_reasoning_summary": "none",
+      "support_verbosity": false,
+      "default_verbosity": null,
+      "apply_patch_tool_type": "claude_code",
+      "truncation_policy": {
+        "mode": "bytes",
+        "limit": 40000
+      },
+      "supports_parallel_tool_calls": true,
+      "supports_image_detail_original": false,
+      "context_window": 1000000,
+      "max_context_window": 1000000,
+      "auto_compact_token_limit": null,
+      "effective_context_window_percent": 60,
+      "experimental_supported_tools": [],
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "supports_search_tool": true,
+      "extra_body": {}
+    },
+    {
       "slug": "kimi-k3.1-pro",
       "tool_mode": "code_mode",
       "display_name": "Kimi K3.1 Pro",
