@@ -8,6 +8,7 @@ service_tier = "default"    # 显式无 tier：覆盖基础 config 的 fast，�
 [features]
 code_mode = true
 code_mode_host = true
+default_mode_request_user_input = true
 memories = true
 
 [tui]

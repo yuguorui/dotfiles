@@ -27,6 +27,7 @@ approvals_reviewer = "auto_review"
 [features]
 code_mode = true
 code_mode_host = true
+default_mode_request_user_input = true
 memories = true
 
 [tui]

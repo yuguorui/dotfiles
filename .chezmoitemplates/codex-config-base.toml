@@ -51,6 +51,7 @@ conversationDetailMode = "STEPS_COMMANDS"
 [features]
 code_mode = true
 code_mode_host = true
+default_mode_request_user_input = true
 apps = false
 js_repl = false
 memories = true
