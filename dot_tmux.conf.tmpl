@@ -2,6 +2,22 @@
 set -g default-terminal "tmux-256color"
 set -as terminal-overrides ',*:Tc'
 
+##### Shell #####
+# 若系统已安装 zsh，优先将其设为默认 shell（按系统默认 -> 用户/Homebrew 顺序覆盖）
+{{- $zshPaths := list "/bin/zsh" "/usr/bin/zsh" "/usr/local/bin/zsh" }}
+{{- if eq .chezmoi.os "darwin" }}
+{{-   $zshPaths = list "/bin/zsh" "/usr/local/bin/zsh" "/opt/homebrew/bin/zsh" (joinPath .chezmoi.homeDir ".local/bin/zsh") }}
+{{- else if eq .chezmoi.os "linux" }}
+{{-   $zshPaths = list "/bin/zsh" "/usr/bin/zsh" "/usr/local/bin/zsh" "/home/linuxbrew/.linuxbrew/bin/zsh" (joinPath .chezmoi.homeDir ".local/bin/zsh") }}
+{{- end }}
+{{- $detectedZsh := lookPath "zsh" }}
+{{- if and $detectedZsh (not (has $detectedZsh $zshPaths)) }}
+{{-   $zshPaths = append $zshPaths $detectedZsh }}
+{{- end }}
+{{- range $zshPaths }}
+if-shell 'test -x {{ . | quote }}' 'set -g default-shell {{ . | quote }}'
+{{- end }}
+
 ##### Input #####
 set -s escape-time 10
 set -g mouse on
